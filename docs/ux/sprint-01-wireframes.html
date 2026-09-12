@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gym Tracker — SPR-01 wireframes</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1b1b1b;
+      --muted: #666;
+      --line: #bdbdbd;
+      --soft-line: #dedede;
+      --paper: #fff;
+      --wash: #f3f3f3;
+      --quiet: #fafafa;
+      --accent: #e5e5e5;
+      --preview-width: 390px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { min-width: 320px; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--wash);
+      font: 14px/1.45 Arial, Helvetica, sans-serif;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    button, a { color: inherit; }
+
+    button {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 4px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    button:hover, button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid var(--ink);
+      outline-offset: 2px;
+    }
+
+    button.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    button.quiet { background: var(--quiet); }
+    button.link-button { border: 0; background: transparent; text-decoration: underline; padding-inline: 0; }
+
+    a { text-decoration: underline; }
+
+    .prototype-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .prototype-header h1 { margin: 0; font-size: 18px; }
+    .prototype-header p { margin: 2px 0 0; color: var(--muted); }
+
+    .width-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+    .width-controls span { color: var(--muted); }
+    .width-controls button { min-height: 32px; padding: 5px 8px; }
+
+    .prototype-layout {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      min-height: calc(100vh - 77px);
+    }
+
+    .screen-list {
+      padding: 18px;
+      border-right: 1px solid var(--line);
+      background: var(--quiet);
+    }
+
+    .screen-list h2, .notes h2 { margin: 0 0 10px; font-size: 14px; }
+    .screen-list p { margin: 0 0 16px; color: var(--muted); font-size: 12px; }
+
+    .screen-list section + section { margin-top: 18px; }
+    .screen-list button { width: 100%; text-align: left; margin: 3px 0; min-height: 36px; padding: 6px 9px; }
+    .screen-list button[aria-current="page"] { background: var(--accent); border-color: var(--ink); font-weight: 700; }
+
+    .preview-area {
+      display: grid;
+      grid-template-columns: minmax(320px, 1fr) minmax(220px, 280px);
+      align-items: start;
+      gap: 24px;
+      padding: 24px;
+    }
+
+    .preview-column { display: flex; justify-content: center; min-width: 0; }
+
+    .device {
+      width: min(var(--preview-width), 100%);
+      min-height: 720px;
+      border: 12px solid var(--ink);
+      border-radius: 24px;
+      background: var(--paper);
+      box-shadow: 0 4px 0 #999;
+      overflow: hidden;
+    }
+
+    .device-status {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 14px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--soft-line);
+      font-size: 11px;
+    }
+
+    .screen {
+      min-height: 680px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .screen-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .screen-header h2 { margin: 0; font-size: 18px; }
+    .screen-header small { color: var(--muted); }
+
+    .screen-content { flex: 1; padding: 16px; }
+    .screen-content > * + * { margin-top: 14px; }
+    .screen-content h3 { margin: 0; font-size: 16px; }
+    .screen-content h4 { margin: 0; font-size: 14px; }
+    .screen-content p { margin: 5px 0 0; }
+    .muted { color: var(--muted); }
+    .center { text-align: center; }
+    .right { text-align: right; }
+
+    .wire-box {
+      border: 1px solid var(--line);
+      background: var(--quiet);
+      padding: 12px;
+    }
+
+    .wire-box + .wire-box { margin-top: 10px; }
+    .wire-box > * + * { margin-top: 10px; }
+
+    .stack { display: grid; gap: 9px; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .row-start { align-items: flex-start; }
+    .actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .actions > * { flex: 0 0 auto; }
+
+    label { display: grid; gap: 5px; color: var(--muted); font-size: 12px; }
+    input, select, textarea {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 8px;
+      background: var(--paper);
+      color: var(--ink);
+    }
+    textarea { min-height: 72px; resize: vertical; }
+    .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .status {
+      border-left: 4px solid var(--ink);
+      padding: 8px 10px;
+      background: var(--accent);
+    }
+    .status.error { border-left-style: double; }
+    .status.success { border-left-style: solid; }
+    .status strong { display: block; }
+
+    .badge { display: inline-block; border: 1px solid var(--line); padding: 2px 6px; background: var(--paper); font-size: 11px; }
+
+    .set-row { display: grid; grid-template-columns: 38px minmax(0, 1fr) minmax(0, 1fr) 44px; gap: 6px; align-items: end; }
+    .set-number { align-self: center; font-weight: 700; }
+    .set-row button { min-height: 40px; padding: 8px 6px; }
+
+    .bottom-nav {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+      padding: 8px;
+      border-top: 1px solid var(--line);
+      background: var(--quiet);
+    }
+    .bottom-nav button { min-height: 48px; padding: 4px 2px; font-size: 11px; }
+    .bottom-nav button[aria-current="page"] { background: var(--accent); font-weight: 700; }
+
+    .active-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px 12px;
+      border-top: 1px solid var(--line);
+      background: var(--accent);
+      font-size: 12px;
+    }
+
+    .notes { min-width: 0; }
+    .notes .wire-box { background: var(--paper); }
+    .notes ul { margin: 8px 0 0; padding-left: 18px; }
+    .notes li + li { margin-top: 5px; }
+    .route-tag { font-family: Consolas, monospace; font-size: 12px; }
+
+    .hidden { display: none; }
+
+    @media (max-width: 900px) {
+      .preview-area { grid-template-columns: 1fr; }
+      .notes { max-width: 640px; margin: 0 auto; width: 100%; }
+    }
+
+    @media (max-width: 767px) {
+      .prototype-header { align-items: flex-start; flex-direction: column; }
+      .width-controls { justify-content: flex-start; }
+      .prototype-layout { display: flex; flex-direction: column; }
+      .screen-list { order: 2; border-right: 0; border-top: 1px solid var(--line); }
+      .screen-list section { display: inline-flex; vertical-align: top; flex-direction: column; width: 48%; margin-right: 1%; }
+      .screen-list section + section { margin-top: 0; }
+      .preview-area { padding: 16px; }
+      .device { min-height: 660px; border-width: 8px; border-radius: 18px; }
+      .screen { min-height: 644px; }
+    }
+
+    @media (max-width: 390px) {
+      .preview-area { padding: 8px; }
+      .set-row { grid-template-columns: 30px minmax(0, 1fr) minmax(0, 1fr) 40px; gap: 4px; }
+      .set-row button { padding-inline: 4px; }
+      .screen-content { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="prototype-header">
+    <div>
+      <h1>Gym Tracker · SPR-01</h1>
+      <p>Prototipo navegable de baja fidelidad · arquitectura antes del diseño visual</p>
+    </div>
+    <div class="width-controls" aria-label="Ancho de validación">
+      <span>Vista:</span>
+      <button type="button" data-width="360">360</button>
+      <button type="button" data-width="390">390</button>
+      <button type="button" data-width="768">768</button>
+      <button type="button" data-width="1280">1280</button>
+    </div>
+  </header>
+
+  <main class="prototype-layout">
+    <aside class="screen-list" aria-label="Selector de pantallas">
+      <h2>Escenarios</h2>
+      <p>Selecciona un punto de entrada o usa las acciones del wireframe.</p>
+      <section aria-labelledby="access-label">
+        <h3 id="access-label">Acceso</h3>
+        <button type="button" data-screen="login">Login</button>
+        <button type="button" data-screen="register">Registro</button>
+        <button type="button" data-screen="email-pending">Email pendiente</button>
+      </section>
+      <section aria-labelledby="training-label">
+        <h3 id="training-label">Entrenamiento</h3>
+        <button type="button" data-screen="home">Inicio</button>
+        <button type="button" data-screen="routines-empty">Rutinas vacías</button>
+        <button type="button" data-screen="routine-editor">Editor de rutina</button>
+        <button type="button" data-screen="routine-invalid">Rutina inválida</button>
+        <button type="button" data-screen="routine-ready">Rutina lista</button>
+        <button type="button" data-screen="active-exists">Workout activo existente</button>
+        <button type="button" data-screen="active-workout">Workout activo</button>
+        <button type="button" data-screen="set-saving">Serie guardando</button>
+        <button type="button" data-screen="set-error">Error de serie</button>
+        <button type="button" data-screen="finish-pending">Borrador pendiente</button>
+        <button type="button" data-screen="workout-summary">Resumen</button>
+      </section>
+      <section aria-labelledby="evidence-label">
+        <h3 id="evidence-label">Evidencia</h3>
+        <button type="button" data-screen="history-empty">Historial vacío</button>
+        <button type="button" data-screen="history-list">Historial</button>
+        <button type="button" data-screen="history-detail">Detalle snapshot</button>
+        <button type="button" data-screen="progress-empty">Progreso vacío</button>
+        <button type="button" data-screen="progress-chart">Progreso</button>
+        <button type="button" data-screen="progress-many">Muchos puntos</button>
+      </section>
+    </aside>
+
+    <section class="preview-area">
+      <div class="preview-column">
+        <div class="device" aria-label="Vista previa del prototipo">
+          <div class="device-status"><span>9:41</span><span>Wi-Fi · 86%</span></div>
+          <div id="screen-root" aria-live="polite"></div>
+        </div>
+      </div>
+      <aside class="notes" aria-label="Notas del escenario">
+        <div class="wire-box">
+          <h2>Escenario actual</h2>
+          <p id="scenario-name" class="muted"></p>
+          <p id="scenario-route" class="route-tag"></p>
+        </div>
+        <div class="wire-box">
+          <h2>Intención UX</h2>
+          <p id="scenario-intent"></p>
+        </div>
+        <div class="wire-box">
+          <h2>Comprobaciones</h2>
+          <ul id="scenario-checks"></ul>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const screens = {
+      login: {
+        name: "UX-01 · Inicio de sesión",
+        route: "/login",
+        intent: "Acceder sin revelar información sobre cuentas y conservar el correo cuando la contraseña falle.",
+        checks: ["Error junto al formulario", "Enlace a registro y recuperación", "Destino de éxito: Inicio"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Gym Tracker</small><h2>Iniciar sesión</h2></div></header>
+            <main class="screen-content">
+              <div class="stack">
+                <label>Correo<input type="email" value="tayron@example.com"></label>
+                <label>Contraseña<input type="password" value="password"></label>
+                <button type="button" class="primary" data-go="home">Iniciar sesión</button>
+              </div>
+              <div class="status error"><strong>Ejemplo de error</strong><span>Correo o contraseña no válidos. Revisa los datos e inténtalo de nuevo.</span></div>
+              <div class="row"><button type="button" class="link-button" data-go="register">Crear cuenta</button><button type="button" class="link-button" data-go="forgot">¿Olvidaste tu contraseña?</button></div>
+            </main>
+          </div>`
+      },
+      forgot: {
+        name: "UX-01 · Recuperación",
+        route: "/forgot-password",
+        intent: "Ofrecer una salida recuperable sin revelar si el correo existe.",
+        checks: ["Mensaje neutro", "Volver a login", "Campo de correo único"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Acceso</small><h2>Recuperar contraseña</h2></div></header>
+            <main class="screen-content">
+              <p class="muted">Te enviaremos instrucciones si la cuenta puede recibir correo.</p>
+              <label>Correo<input type="email" value="tayron@example.com"></label>
+              <button type="button" class="primary" data-go="login">Enviar instrucciones</button>
+              <button type="button" class="link-button" data-go="login">Volver a iniciar sesión</button>
+            </main>
+          </div>`
+      },
+      register: {
+        name: "UX-01 · Registro",
+        route: "/register",
+        intent: "Crear la cuenta y comunicar el siguiente paso sin sobrecargar el formulario.",
+        checks: ["Contraseña se limpia ante error", "Correo se conserva", "Destino: email pendiente"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Gym Tracker</small><h2>Crear cuenta</h2></div></header>
+            <main class="screen-content">
+              <div class="stack">
+                <label>Correo<input type="email" value="tayron@example.com"></label>
+                <label>Contraseña<input type="password" placeholder="Mínimo según política"></label>
+                <button type="button" class="primary" data-go="email-pending">Crear cuenta</button>
+              </div>
+              <div class="status error"><strong>Ejemplo de error seguro</strong><span>No se pudo completar el registro. Corrige los datos o inténtalo de nuevo.</span></div>
+              <button type="button" class="link-button" data-go="login">Ya tengo una cuenta</button>
+            </main>
+          </div>`
+      },
+      "email-pending": {
+        name: "UX-01 · Email pendiente",
+        route: "/register → confirmación",
+        intent: "Confirmar que la intención terminó y dar una salida clara al acceso.",
+        checks: ["Correo parcialmente identificado", "Reenviar disponible", "Volver a login"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Cuenta creada</small><h2>Confirma tu correo</h2></div></header>
+            <main class="screen-content center">
+              <div class="wire-box"><h3>Revisa tu bandeja de entrada</h3><p>Enviamos un enlace a tayron@example.com. Confirma la cuenta antes de usar tus datos privados.</p></div>
+              <button type="button" class="primary" data-go="login">Volver a iniciar sesión</button>
+              <button type="button" class="link-button" data-go="email-pending">Reenviar correo</button>
+            </main>
+          </div>`
+      },
+      home: {
+        name: "Inicio",
+        route: "/app",
+        intent: "Hacer evidente si continuar un workout o empezar uno nuevo es la acción principal.",
+        checks: ["Acción primaria visible", "Workout activo recuperable", "Cinco áreas en navegación"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Martes, 12 sep</small><h2>Hola, Tayron</h2></div><button type="button" aria-label="Abrir menú">Menú</button></header>
+            <main class="screen-content">
+              <div class="wire-box"><div class="row"><div><h3>Workout activo</h3><p class="muted">Push A · 2 de 5 ejercicios</p></div><button type="button" class="primary" data-go="active-workout">Continuar</button></div></div>
+              <div class="wire-box"><h3>Empezar entrenamiento</h3><p class="muted">Elige una rutina para cargar su estructura.</p><button type="button" data-go="routines-empty">Ver rutinas</button></div>
+              <div class="row"><button type="button" data-go="history-list">Historial reciente</button><button type="button" data-go="progress-chart">Ver progreso</button></div>
+            </main>
+            <nav class="bottom-nav" aria-label="Navegación principal"><button type="button" aria-current="page" data-go="home">Inicio</button><button type="button" data-go="routines-empty">Rutinas</button><button type="button" data-go="active-workout">Entrenar</button><button type="button" data-go="history-list">Historial</button><button type="button" data-go="progress-chart">Progreso</button></nav>
+          </div>`
+      },
+      "routines-empty": {
+        name: "UX-02 · Rutinas vacías",
+        route: "/app/routines",
+        intent: "Convertir el primer estado vacío en una acción clara, sin presentar una lista inexistente.",
+        checks: ["Explica qué se puede hacer", "Crear rutina es la acción primaria", "Volver a Inicio funciona"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Plantillas</small><h2>Rutinas</h2></div><button type="button" class="primary" data-go="routine-editor">Nueva</button></header>
+            <main class="screen-content center">
+              <div class="wire-box"><h3>Aún no tienes rutinas</h3><p class="muted">Crea una plantilla para comenzar un workout sin volver a escribir los ejercicios.</p><button type="button" class="primary" data-go="routine-editor">Crear primera rutina</button></div>
+            </main>
+            <nav class="bottom-nav" aria-label="Navegación principal"><button type="button" data-go="home">Inicio</button><button type="button" aria-current="page" data-go="routines-empty">Rutinas</button><button type="button" data-go="active-workout">Entrenar</button><button type="button" data-go="history-list">Historial</button><button type="button" data-go="progress-chart">Progreso</button></nav>
+          </div>`
+      },
+      "routine-editor": {
+        name: "UX-02 · Editor de rutina",
+        route: "/app/routines/new",
+        intent: "Permitir construir la plantilla por etapas y mantener visible el orden de los ejercicios.",
+        checks: ["Selector accesible", "Reordenamiento explícito", "Guardar borrador posible", "Validación no destruye entradas"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Nueva rutina</small><h2>Editar rutina</h2></div><button type="button" data-go="routines-empty">Cerrar</button></header>
+            <main class="screen-content">
+              <label>Nombre<input type="text" value="Push A"></label>
+              <label>Descripción<textarea placeholder="Opcional"></textarea></label>
+              <div class="wire-box"><div class="row"><h3>Ejercicios</h3><button type="button" data-go="routine-ready">Añadir</button></div><p class="muted">Todavía no hay ejercicios. El selector aparece aquí.</p></div>
+              <div class="actions"><button type="button" class="quiet" data-go="routines-empty">Guardar borrador</button><button type="button" class="primary" data-go="routine-ready">Añadir ejercicios</button></div>
+            </main>
+          </div>`
+      },
+      "routine-invalid": {
+        name: "UX-02 · Validación de rutina",
+        route: "/app/routines/:id",
+        intent: "Explicar por qué la rutina no se puede iniciar y ofrecer la corrección en el mismo contexto.",
+        checks: ["Causa específica", "No se ejecuta una operación remota inválida", "Editar sigue disponible"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Rutina</small><h2>Push A</h2></div><button type="button" data-go="routine-editor">Editar</button></header>
+            <main class="screen-content">
+              <div class="status error"><strong>No se puede iniciar todavía</strong><span>Añade al menos un ejercicio para crear un workout desde esta rutina.</span></div>
+              <div class="wire-box"><h3>Ejercicios (0)</h3><p class="muted">La plantilla puede guardarse como borrador.</p><button type="button" class="primary" data-go="routine-editor">Añadir ejercicio</button></div>
+              <button type="button" class="link-button" data-go="routines-empty">Volver a rutinas</button>
+            </main>
+          </div>`
+      },
+      "routine-ready": {
+        name: "UX-02/03 · Rutina lista",
+        route: "/app/routines/:id",
+        intent: "Mostrar la estructura, objetivos y acción de inicio antes de crear el workout.",
+        checks: ["Dos ejercicios con orden", "Objetivos visibles", "Inicio atómico representado", "Editar no cambia historial"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Rutina · activa</small><h2>Push A</h2></div><button type="button" data-go="routine-editor">Editar</button></header>
+            <main class="screen-content">
+              <div class="wire-box"><div class="row"><strong>1 · Press banca</strong><span class="badge">3 × 8–12 · RIR 2</span></div><p class="muted">Descanso 120 s</p></div>
+              <div class="wire-box"><div class="row"><strong>2 · Press militar</strong><span class="badge">3 × 8–10 · RIR 2</span></div><p class="muted">Descanso 90 s</p></div>
+              <div class="actions"><button type="button" class="primary" data-go="active-workout">Empezar entrenamiento</button><button type="button" data-go="routine-invalid">Ver estado inválido</button></div>
+            </main>
+          </div>`
+      },
+      "active-exists": {
+        name: "UX-03 · Workout activo existente",
+        route: "/app/workout/active · conflicto",
+        intent: "Evitar un segundo workout y ofrecer continuar el agregado existente.",
+        checks: ["Conflicto comprensible", "Continuar es la acción primaria", "Rutinas sigue disponible"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Inicio de workout</small><h2>Ya tienes un workout activo</h2></div></header>
+            <main class="screen-content">
+              <div class="status"><strong>Push A · iniciado hace 18 min</strong><span>2 de 5 ejercicios · última serie guardada hace 1 min</span></div>
+              <div class="actions"><button type="button" class="primary" data-go="active-workout">Continuar workout</button><button type="button" data-go="routines-empty">Ver rutinas</button></div>
+              <p class="muted">No se crea otra sesión. El workout activo es único por usuario.</p>
+            </main>
+          </div>`
+      },
+      "active-workout": {
+        name: "UX-03/04 · Workout activo",
+        route: "/app/workout/active",
+        intent: "Poner la serie actual, la última vez y el guardado en la misma zona de atención.",
+        checks: ["Última vez visible", "Peso y reps primarios", "RIR opcional", "Finalizar conserva contexto", "Foco siguiente tras guardar"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Push A · 2 de 5</small><h2>Press banca</h2></div><button type="button" data-go="finish-pending">Finalizar</button></header>
+            <main class="screen-content">
+              <div class="wire-box"><div class="row"><strong>Última vez</strong><span class="muted">75 kg × 10 · hace 5 días</span></div></div>
+              <div class="set-row"><span class="set-number">1</span><label>Peso<input inputmode="decimal" value="80"></label><label>Reps<input inputmode="numeric" value="8"></label><button type="button" class="primary" data-go="set-saving">OK</button></div>
+              <div class="set-row"><span class="set-number">2</span><label>Peso<input inputmode="decimal" placeholder="kg"></label><label>Reps<input inputmode="numeric" placeholder="reps"></label><button type="button" data-go="set-saving">OK</button></div>
+              <div class="row"><label style="flex:1">RIR opcional<input inputmode="numeric" placeholder="0–10"></label><span class="badge">Objetivo 3 series</span></div>
+              <div class="actions"><button type="button" class="primary" data-go="set-saving">Guardar serie</button><button type="button" data-go="set-error">Simular error</button></div>
+              <div class="status"><strong>Descanso listo para derivarse</strong><span>Se calculará desde la confirmación y el descanso configurado.</span></div>
+            </main>
+            <div class="active-bar"><span>18:42 · 2/5 ejercicios</span><button type="button" data-go="finish-pending">Finalizar</button></div>
+          </div>`
+      },
+      "set-saving": {
+        name: "UX-04 · Serie guardando",
+        route: "/app/workout/active · mutación",
+        intent: "Diferenciar la confirmación remota en curso del estado guardado y evitar doble envío.",
+        checks: ["Botón bloqueado durante guardado", "Entrada no desaparece", "Destino de éxito explícito"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Press banca · Serie 1</small><h2>Guardando…</h2></div></header>
+            <main class="screen-content">
+              <div class="set-row"><span class="set-number">1</span><label>Peso<input value="80" disabled></label><label>Reps<input value="8" disabled></label><button type="button" disabled>…</button></div>
+              <div class="status"><strong>Confirmando en la nube</strong><span>No cierres esta fila. El botón no acepta un segundo toque.</span></div>
+              <div class="actions"><button type="button" class="primary" data-go="active-workout">Ver serie guardada</button><button type="button" data-go="set-error">Simular fallo</button></div>
+            </main>
+          </div>`
+      },
+      "set-error": {
+        name: "UX-04 · Error de serie",
+        route: "/app/workout/active · error recuperable",
+        intent: "Hacer imposible confundir un error de red con una confirmación y preservar la entrada.",
+        checks: ["Estado no guardado inequívoco", "Valores preservados", "Reintento no duplica", "Volver al workout"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Press banca · Serie 1</small><h2>No se guardó</h2></div></header>
+            <main class="screen-content">
+              <div class="set-row"><span class="set-number">1</span><label>Peso<input value="80"></label><label>Reps<input value="8"></label><button type="button" class="primary" data-go="set-saving">Reintentar</button></div>
+              <div class="status error"><strong>No se pudo confirmar la serie</strong><span>Comprueba la conexión. La serie sigue editable y todavía no cuenta como guardada.</span></div>
+              <div class="actions"><button type="button" class="primary" data-go="set-saving">Reintentar</button><button type="button" data-go="active-workout">Volver al workout</button></div>
+            </main>
+          </div>`
+      },
+      "finish-pending": {
+        name: "UX-05 · Borrador pendiente",
+        route: "/app/workout/active · finalizar",
+        intent: "Detener la finalización hasta resolver entradas pendientes y explicar por qué.",
+        checks: ["Borrador identificado", "Volver a editar", "No se marca completado por accidente", "Camino a resumen disponible"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Push A</small><h2>Revisa antes de finalizar</h2></div></header>
+            <main class="screen-content">
+              <div class="status error"><strong>Hay una serie sin guardar</strong><span>Resuélvela o elimínala. Un workout completado no puede ocultar entradas pendientes.</span></div>
+              <div class="wire-box"><div class="row"><strong>Press banca · Serie 2</strong><span class="badge">Borrador</span></div><p class="muted">Peso y repeticiones incompletos.</p></div>
+              <div class="actions"><button type="button" class="primary" data-go="active-workout">Volver a editar</button><button type="button" data-go="workout-summary">Simular sin pendientes</button></div>
+            </main>
+          </div>`
+      },
+      "workout-summary": {
+        name: "UX-05 · Resumen",
+        route: "/app/workout/active → completado",
+        intent: "Cerrar el workout con una confirmación clara y conectar el resultado con historial y progreso.",
+        checks: ["Estado completed visible", "Resumen de duración, ejercicios y series", "PR provisional comunicado", "Historial y progreso conectados"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Workout completado</small><h2>Buen trabajo</h2></div></header>
+            <main class="screen-content">
+              <div class="status success"><strong>Push A guardado</strong><span>Los datos confirmados están disponibles en tu historial.</span></div>
+              <div class="wire-box"><div class="row"><span>Duración</span><strong>42 min</strong></div><div class="row"><span>Ejercicios</span><strong>5</strong></div><div class="row"><span>Series de trabajo</span><strong>15</strong></div><div class="row"><span>Volumen</span><strong>3.420 kg</strong></div></div>
+              <div class="wire-box"><h3>PR provisional</h3><p>Press banca · 80 kg × 8 · e1RM 101,3 kg</p></div>
+              <div class="actions"><button type="button" class="primary" data-go="history-detail">Ver detalle</button><button type="button" data-go="progress-chart">Ver progreso</button><button type="button" data-go="home">Volver a inicio</button></div>
+            </main>
+          </div>`
+      },
+      "history-empty": {
+        name: "UX-06 · Historial vacío",
+        route: "/app/history",
+        intent: "Explicar qué aparecerá y llevar al usuario al primer workout.",
+        checks: ["Estado vacío orientado a acción", "Inicio y Rutinas accesibles", "No mostrar una tabla inexistente"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Evidencia</small><h2>Historial</h2></div></header>
+            <main class="screen-content center"><div class="wire-box"><h3>Aquí aparecerán tus workouts</h3><p class="muted">Completa tu primera sesión para consultar snapshots, series y progreso.</p><button type="button" class="primary" data-go="routines-empty">Crear una rutina</button></div></main>
+            <nav class="bottom-nav" aria-label="Navegación principal"><button type="button" data-go="home">Inicio</button><button type="button" data-go="routines-empty">Rutinas</button><button type="button" data-go="active-workout">Entrenar</button><button type="button" aria-current="page" data-go="history-empty">Historial</button><button type="button" data-go="progress-empty">Progreso</button></nav>
+          </div>`
+      },
+      "history-list": {
+        name: "UX-06 · Historial",
+        route: "/app/history",
+        intent: "Permitir reconocer rápidamente la sesión y abrir su detalle histórico.",
+        checks: ["Orden descendente", "Fecha local y duración", "Rutina snapshot", "Paginación futura no bloquea lectura"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Evidencia</small><h2>Historial</h2></div><button type="button" data-go="progress-chart">Progreso</button></header>
+            <main class="screen-content">
+              <div class="wire-box"><div class="row"><div><strong>Push A</strong><p class="muted">12 sep · 42 min · 15 series</p></div><button type="button" data-go="history-detail">Ver detalle</button></div></div>
+              <div class="wire-box"><div class="row"><div><strong>Pull A</strong><p class="muted">10 sep · 38 min · 13 series</p></div><button type="button" data-go="history-detail">Ver detalle</button></div></div>
+              <button type="button" data-go="history-list">Cargar más</button>
+            </main>
+            <nav class="bottom-nav" aria-label="Navegación principal"><button type="button" data-go="home">Inicio</button><button type="button" data-go="routines-empty">Rutinas</button><button type="button" data-go="active-workout">Entrenar</button><button type="button" aria-current="page" data-go="history-list">Historial</button><button type="button" data-go="progress-chart">Progreso</button></nav>
+          </div>`
+      },
+      "history-detail": {
+        name: "UX-06 · Detalle snapshot",
+        route: "/app/history/:id",
+        intent: "Demostrar que el detalle lee el snapshot del workout y no la rutina actual.",
+        checks: ["Nombre histórico visible", "Orden histórico visible", "Notas separadas del rendimiento", "Eliminar es explícito"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>12 sep · completado</small><h2>Push A</h2></div><button type="button" data-go="history-list">Atrás</button></header>
+            <main class="screen-content">
+              <div class="wire-box"><h3>Snapshot del workout</h3><p class="muted">5 ejercicios · 15 series de trabajo · 42 min</p></div>
+              <div class="wire-box"><div class="row"><strong>1 · Press banca</strong><span>80 kg × 8</span></div><div class="row"><strong>2 · Press militar</strong><span>42,5 kg × 10</span></div></div>
+              <label>Notas<textarea placeholder="Añadir una nota privada"></textarea></label>
+              <div class="actions"><button type="button" class="primary" data-go="progress-chart">Ver progreso del ejercicio</button><button type="button" data-go="history-list">Volver al historial</button></div>
+            </main>
+          </div>`
+      },
+      "progress-empty": {
+        name: "UX-07 · Progreso vacío",
+        route: "/app/progress",
+        intent: "Explicar que el progreso depende de workouts completados y ofrecer el primer paso.",
+        checks: ["Sin gráfica falsa", "Causa del vacío clara", "Acción a entrenamiento"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Análisis</small><h2>Progreso</h2></div></header>
+            <main class="screen-content center"><div class="wire-box"><h3>Aún no hay datos</h3><p class="muted">Completa workouts con series de trabajo para ver e1RM y series semanales.</p><button type="button" class="primary" data-go="routines-empty">Empezar una rutina</button></div></main>
+            <nav class="bottom-nav" aria-label="Navegación principal"><button type="button" data-go="home">Inicio</button><button type="button" data-go="routines-empty">Rutinas</button><button type="button" data-go="active-workout">Entrenar</button><button type="button" data-go="history-list">Historial</button><button type="button" aria-current="page" data-go="progress-empty">Progreso</button></nav>
+          </div>`
+      },
+      "progress-chart": {
+        name: "UX-07 · Progreso",
+        route: "/app/progress",
+        intent: "Relacionar la gráfica de e1RM con la tabla de datos y permitir cambiar de rango.",
+        checks: ["Magnitud y unidad explícitas", "Rango corto visible", "Tabla concuerda con gráfica", "Sin datos tiene salida"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Análisis</small><h2>Progreso</h2></div><button type="button" data-go="progress-many">Rango</button></header>
+            <main class="screen-content">
+              <label>Ejercicio<select><option>Press banca</option><option>Press militar</option></select></label>
+              <div class="row"><span>Últimos 30 días</span><button type="button" data-go="progress-many">Cambiar rango</button></div>
+              <div class="wire-box"><h3>e1RM estimado (kg)</h3><div style="height:150px;border:1px dashed var(--line);display:grid;place-items:center;">[ gráfica de baja fidelidad · 3 puntos ]</div><p class="muted">72,0 → 101,3 kg</p></div>
+              <div class="wire-box"><div class="row"><span>12 sep</span><strong>101,3 kg</strong></div><div class="row"><span>8 sep</span><strong>98,0 kg</strong></div><div class="row"><span>2 sep</span><strong>92,5 kg</strong></div></div>
+            </main>
+            <nav class="bottom-nav" aria-label="Navegación principal"><button type="button" data-go="home">Inicio</button><button type="button" data-go="routines-empty">Rutinas</button><button type="button" data-go="active-workout">Entrenar</button><button type="button" data-go="history-list">Historial</button><button type="button" aria-current="page" data-go="progress-chart">Progreso</button></nav>
+          </div>`
+      },
+      "progress-many": {
+        name: "UX-07/08 · Muchos puntos",
+        route: "/app/progress · rango amplio",
+        intent: "Comprobar que un rango amplio conserva lectura y ofrece una alternativa tabular.",
+        checks: ["La gráfica no es el único acceso", "Rango se puede reducir", "Tabla mantiene fechas y unidad", "Contenido apila en ancho estrecho"],
+        html: `
+          <div class="screen">
+            <header class="screen-header"><div><small>Análisis · 6 meses</small><h2>Press banca</h2></div><button type="button" data-go="progress-chart">Reducir rango</button></header>
+            <main class="screen-content">
+              <div class="wire-box"><h3>e1RM estimado (kg)</h3><div style="height:180px;border:1px dashed var(--line);display:grid;place-items:center;text-align:center;">[ gráfica con muchos puntos<br>eje temporal legible y sin scroll horizontal ]</div></div>
+              <div class="wire-box"><h3>Tabla accesible</h3><div class="row"><span>12 sep</span><strong>101,3 kg</strong></div><div class="row"><span>8 sep</span><strong>98,0 kg</strong></div><div class="row"><span>2 sep</span><strong>92,5 kg</strong></div><div class="row"><span>Más fechas…</span><button type="button" data-go="progress-chart">Ver rango corto</button></div></div>
+            </main>
+          </div>`
+      }
+    };
+
+    const screenRoot = document.getElementById("screen-root");
+    const scenarioName = document.getElementById("scenario-name");
+    const scenarioRoute = document.getElementById("scenario-route");
+    const scenarioIntent = document.getElementById("scenario-intent");
+    const scenarioChecks = document.getElementById("scenario-checks");
+    const device = document.querySelector(".device");
+
+    function navigate(screenId) {
+      const screen = screens[screenId] || screens.home;
+      screenRoot.innerHTML = screen.html;
+      scenarioName.textContent = screen.name;
+      scenarioRoute.textContent = screen.route;
+      scenarioIntent.textContent = screen.intent;
+      scenarioChecks.innerHTML = screen.checks.map((check) => `<li>${check}</li>`).join("");
+      document.querySelectorAll("[data-screen]").forEach((button) => {
+        button.setAttribute("aria-current", button.dataset.screen === screenId ? "page" : "false");
+      });
+      screenRoot.querySelectorAll("[data-go]").forEach((button) => {
+        button.addEventListener("click", () => navigate(button.dataset.go));
+      });
+      window.location.hash = screenId;
+    }
+
+    document.querySelectorAll("[data-screen]").forEach((button) => {
+      button.addEventListener("click", () => navigate(button.dataset.screen));
+    });
+
+    document.querySelectorAll("[data-width]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const width = Number(button.dataset.width);
+        device.style.setProperty("--preview-width", `${Math.max(320, Math.min(width, 1280))}px`);
+        document.querySelectorAll("[data-width]").forEach((candidate) => candidate.setAttribute("aria-pressed", candidate === button ? "true" : "false"));
+      });
+    });
+
+    const initialScreen = window.location.hash.slice(1);
+    navigate(screens[initialScreen] ? initialScreen : "login");
+  </script>
+</body>
+</html>
