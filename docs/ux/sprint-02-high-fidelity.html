@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gym Tracker — SPR-02 high fidelity</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap');
+
+    :root {
+      color-scheme: light;
+      --chalk: #081722;
+      --paper: #0F2230;
+      --navy: #F2F8FC;
+      --oxide: #27D4FF;
+      --teal: #56C9BA;
+      --brass: #F4C84A;
+      --danger: #FF7087;
+      --ink: var(--navy);
+      --muted: #91A9B8;
+      --line: #274252;
+      --rule: rgba(242, 248, 252, .055);
+      --soft: rgba(242, 248, 252, .045);
+      --shadow: 0 14px 30px rgba(0, 0, 0, .28);
+      --display: 'Manrope', 'Segoe UI', sans-serif;
+      --body: 'Inter', 'Segoe UI', sans-serif;
+      --data: 'IBM Plex Mono', Consolas, monospace;
+      --preview-width: 1280px;
+    }
+
+    #app[data-theme="dim"] {
+      color-scheme: dark;
+      --chalk: #040B12;
+      --paper: #0A1824;
+      --navy: #F2F8FC;
+      --oxide: #31D8FF;
+      --teal: #68D6C8;
+      --brass: #F6CF61;
+      --danger: #FF8095;
+      --ink: var(--navy);
+      --muted: #9AB0BF;
+      --line: #213A4A;
+      --rule: rgba(242, 248, 252, .045);
+      --soft: rgba(242, 248, 252, .035);
+      --shadow: 0 10px 24px rgba(0, 0, 0, .28);
+    }
+
+    * { box-sizing: border-box; }
+    html { min-width: 320px; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #02070B;
+      font: 14px/1.45 var(--body);
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button, a { color: inherit; }
+
+    button {
+      min-height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 10px 14px;
+      background: var(--paper);
+      color: var(--ink);
+      cursor: pointer;
+      transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+    }
+
+    button:hover { transform: translateY(-1px); border-color: var(--ink); }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 3px solid var(--oxide);
+      outline-offset: 3px;
+    }
+    button.primary { border-color: var(--oxide); background: var(--oxide); color: #041019; }
+    button.oxide { border-color: var(--oxide); background: var(--oxide); color: var(--paper); }
+    button.quiet { background: transparent; }
+    button.link-button { border: 0; background: transparent; padding-inline: 0; text-decoration: underline; }
+    button[disabled] { opacity: .55; cursor: not-allowed; transform: none; }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 10px 11px;
+      background: var(--paper);
+      color: var(--ink);
+    }
+    textarea { min-height: 92px; resize: vertical; }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: 13px; }
+
+    .prototype-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 12px 18px;
+      background: var(--navy);
+      color: var(--chalk);
+      font-size: 13px;
+    }
+    .prototype-toolbar strong { font-family: var(--display); font-size: 17px; letter-spacing: .04em; }
+    .prototype-toolbar p { margin: 0; opacity: .78; }
+    .prototype-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .prototype-controls button { min-height: 32px; padding: 5px 9px; background: transparent; color: var(--chalk); border-color: rgba(246, 241, 232, .42); }
+    .prototype-controls button[aria-pressed="true"] { background: var(--oxide); border-color: var(--oxide); }
+
+    .preview-frame {
+      width: min(var(--preview-width), calc(100vw - 28px));
+      margin: 14px auto 36px;
+    }
+
+    #app {
+      display: grid;
+      grid-template-columns: 236px minmax(0, 1fr);
+      min-height: 850px;
+      overflow: hidden;
+      border: 1px solid #B9B7B0;
+      border-radius: 10px;
+      background-color: var(--chalk);
+      background-image: linear-gradient(to bottom, transparent 31px, var(--rule) 32px);
+      background-size: 100% 32px;
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding: 26px 18px 18px;
+      border-right: 1px solid var(--line);
+      background: var(--paper);
+    }
+    .brand { display: flex; align-items: flex-start; gap: 10px; }
+    .brand-mark { width: 22px; height: 22px; border: 4px solid var(--oxide); border-left-width: 9px; transform: rotate(-8deg); }
+    .brand h1 { margin: -2px 0 0; font: 700 20px/1 var(--display); letter-spacing: .01em; }
+    .brand p { margin: 4px 0 0; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .11em; }
+    .sidebar-label { margin: 0 0 7px; color: var(--muted); font: 500 12px var(--data); text-transform: uppercase; letter-spacing: .08em; }
+    .sidebar-nav { display: grid; gap: 4px; }
+    .sidebar-nav button { display: flex; align-items: center; justify-content: space-between; width: 100%; border-color: transparent; background: transparent; text-align: left; }
+    .sidebar-nav button:hover { background: var(--soft); }
+    .sidebar-nav button[aria-current="page"] { border-color: var(--line); background: var(--chalk); font-weight: 600; }
+    .sidebar-nav button[aria-current="page"]::after { content: '↗'; color: var(--oxide); font-family: var(--data); }
+    .sidebar-foot { margin-top: auto; padding-top: 18px; border-top: 1px solid var(--line); }
+    .sidebar-foot p { margin: 0; color: var(--muted); font-size: 12px; }
+
+    .app-main { min-width: 0; display: flex; flex-direction: column; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 24px; border-bottom: 1px solid var(--line); background: rgba(15, 34, 48, .78); }
+    #app[data-theme="dim"] .topbar { background: rgba(10, 24, 36, .84); }
+    .topbar-route { color: var(--muted); font: 12px var(--data); }
+    .topbar-actions { display: flex; align-items: center; gap: 8px; }
+    .topbar-actions button { min-height: 38px; padding: 7px 10px; }
+    .profile-chip { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+    .profile-chip strong { color: var(--ink); }
+    .avatar { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--navy); border-radius: 50%; font: 500 12px var(--data); }
+
+    .page { width: min(100%, 1160px); margin: 0 auto; padding: 26px 24px 36px; }
+    .page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 26px; }
+    .eyebrow { margin: 0 0 5px; color: var(--oxide); font: 500 12px var(--data); text-transform: uppercase; letter-spacing: .08em; }
+    h1, h2, h3, h4 { margin: 0; font-family: var(--display); line-height: .98; letter-spacing: .01em; }
+    h1 { font-size: clamp(24px, 2.8vw, 36px); }
+    h2 { font-size: 22px; }
+    h3 { font-size: 17px; }
+    h4 { font-size: 15px; }
+    .page-heading p:not(.eyebrow) { max-width: 590px; margin: 10px 0 0; color: var(--muted); }
+    .page-heading-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .page > * + * { margin-top: 22px; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr); gap: 18px; align-items: start; }
+    .workout-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(250px, .75fr); gap: 18px; align-items: start; }
+
+    .ledger-card { position: relative; min-width: 0; border: 1px solid var(--line); border-radius: 8px; padding: 20px; background: var(--paper); }
+    .ledger-card.soft { background: var(--soft); }
+    .ledger-card.oxide-edge { border-left: 6px solid var(--oxide); }
+    .ledger-card.teal-edge { border-left: 6px solid var(--teal); }
+    .ledger-card.brass-edge { border-left: 6px solid var(--brass); }
+    .ledger-card h3 + p, .ledger-card h4 + p { margin-top: 6px; }
+    .card-kicker { margin: 0 0 8px; color: var(--muted); font: 500 12px var(--data); text-transform: uppercase; letter-spacing: .07em; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+    .muted { color: var(--muted); }
+    .data { font-family: var(--data); font-variant-numeric: tabular-nums; }
+    .display-number { font: 700 clamp(32px, 4vw, 48px)/.86 var(--display); letter-spacing: -.02em; }
+    .display-number small { display: inline-block; margin-left: 6px; color: var(--muted); font: 500 14px var(--data); letter-spacing: 0; }
+    .metric-label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .07em; }
+    .metric-value { margin-top: 3px; font: 500 22px var(--data); }
+
+    .button-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .between { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .tag { display: inline-flex; align-items: center; min-height: 24px; padding: 3px 7px; border: 1px solid var(--line); border-radius: 3px; color: var(--muted); font: 500 11px var(--data); text-transform: uppercase; letter-spacing: .04em; }
+    .tag.oxide { border-color: var(--oxide); color: var(--oxide); }
+    .tag.teal { border-color: var(--teal); color: var(--teal); }
+    .tag.brass { border-color: var(--brass); color: var(--brass); }
+
+    .plate-index { display: grid; grid-template-columns: 28px 1fr; gap: 13px; align-items: stretch; }
+    .plate-rail { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 4px 0; border-right: 1px solid var(--line); }
+    .plate-mark { display: grid; place-items: center; width: 17px; height: 28px; border: 2px solid var(--line); border-radius: 2px; color: var(--muted); font: 500 10px var(--data); }
+    .plate-mark.complete { border-color: var(--teal); background: var(--teal); color: var(--paper); }
+    .plate-mark.current { border-color: var(--oxide); color: var(--oxide); }
+    .plate-copy { min-width: 0; }
+    .plate-copy > * + * { margin-top: 8px; }
+
+    .hero-card { display: grid; grid-template-columns: minmax(0, 1fr) 112px; gap: 18px; align-items: stretch; }
+    .hero-card .hero-copy { display: flex; flex-direction: column; justify-content: space-between; gap: 24px; }
+    .hero-mark { display: flex; align-items: flex-end; justify-content: flex-end; gap: 7px; padding-bottom: 4px; }
+    .hero-mark span { display: block; width: 19px; background: var(--oxide); }
+    .hero-mark span:nth-child(1) { height: 34px; opacity: .45; }
+    .hero-mark span:nth-child(2) { height: 58px; opacity: .68; }
+    .hero-mark span:nth-child(3) { height: 88px; }
+    .hero-mark span:nth-child(4) { height: 48px; background: var(--teal); }
+    .hero-mark span:nth-child(5) { height: 72px; background: var(--brass); opacity: .72; }
+
+    .routine-list, .history-list { display: grid; gap: 10px; }
+    .routine-row, .history-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .routine-row:first-child, .history-row:first-child { padding-top: 0; }
+    .routine-row:last-child, .history-row:last-child { border-bottom: 0; padding-bottom: 0; }
+    .routine-meta { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-top: 7px; color: var(--muted); font-size: 13px; }
+    .row-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .row-actions button { min-height: 38px; padding: 7px 10px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+    .section-heading p { margin: 4px 0 0; color: var(--muted); }
+
+    .workout-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 18px; }
+    .workout-header p { margin: 6px 0 0; color: var(--muted); }
+    .workout-status { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .status-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--teal); }
+    .status-dot.error { background: var(--danger); }
+    .set-context { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding: 11px 12px; border: 1px solid var(--line); background: var(--soft); }
+    .set-context strong { font-family: var(--data); font-size: 13px; }
+    .set-context span { color: var(--muted); font-size: 13px; }
+    .set-row { display: grid; grid-template-columns: 36px minmax(0, 1fr) minmax(0, 1fr) minmax(76px, .8fr) 82px; gap: 8px; align-items: end; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .set-row:last-of-type { border-bottom: 0; }
+    .set-row > label, .set-row > label input { min-width: 0; }
+    .set-number { align-self: center; color: var(--muted); font: 500 13px var(--data); }
+    .set-type { align-self: center; }
+    .set-type small { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
+    .set-row .confirm { min-height: 46px; padding-inline: 8px; white-space: nowrap; }
+    .set-row.error { margin-inline: -12px; padding-inline: 12px; border: 1px solid var(--danger); background: rgba(255, 112, 135, .08); }
+    .set-row.error + .set-row { border-top: 0; }
+    .set-state { grid-column: 2 / -1; color: var(--muted); font-size: 12px; }
+    .set-state strong { color: var(--oxide); }
+    .workout-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+    .rest-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border-left: 4px solid var(--brass); background: rgba(244, 200, 74, .1); }
+    .rest-bar strong { font: 500 16px var(--data); }
+    .last-time { color: var(--muted); font-size: 13px; }
+    .last-time strong { color: var(--ink); font-family: var(--data); }
+
+    .metric-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .metric { padding: 13px; border: 1px solid var(--line); background: var(--soft); }
+    .summary-pr { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 16px; border: 1px solid var(--oxide); background: rgba(39, 212, 255, .08); }
+    .summary-pr strong { font: 500 24px var(--data); }
+
+    .history-table { width: 100%; border-collapse: collapse; }
+    .history-table th, .history-table td { padding: 12px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+    .history-table th { color: var(--muted); font: 500 11px var(--data); text-transform: uppercase; letter-spacing: .06em; }
+    .history-table td.data-cell { font-family: var(--data); font-variant-numeric: tabular-nums; }
+    .history-table td:last-child, .history-table th:last-child { text-align: right; }
+
+    .chart-panel { padding: 16px; border: 1px solid var(--line); background: var(--paper); }
+    .chart-panel svg { display: block; width: 100%; height: auto; overflow: visible; }
+    .chart-grid { stroke: var(--line); stroke-width: 1; }
+    .chart-line { fill: none; stroke: var(--oxide); stroke-width: 3; }
+    .chart-point { fill: var(--paper); stroke: var(--oxide); stroke-width: 3; }
+    .chart-label { fill: var(--muted); font: 11px var(--data); }
+    .chart-value { fill: var(--ink); font: 500 12px var(--data); }
+    .chart-caption { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; color: var(--muted); font-size: 12px; }
+
+    .empty-state { display: grid; place-items: center; min-height: 250px; padding: 28px; border: 1px dashed var(--line); text-align: center; }
+    .empty-state p { max-width: 390px; margin: 8px auto 16px; color: var(--muted); }
+    .error-state { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 15px; border-left: 5px solid var(--danger); background: rgba(255, 112, 135, .08); }
+    .error-state p { margin: 5px 0 0; color: var(--muted); }
+    .loading-line { height: 12px; background: var(--line); opacity: .45; }
+    .loading-line.short { width: 45%; }
+    .loading-line + .loading-line { margin-top: 9px; }
+
+    .auth-wrap { display: grid; place-items: center; min-height: 700px; padding: 20px 0; }
+    .auth-card { width: min(100%, 460px); padding: 28px; border: 1px solid var(--line); border-top: 8px solid var(--oxide); background: var(--paper); }
+    .auth-card h2 { margin-top: 8px; }
+    .auth-card > * + * { margin-top: 18px; }
+    .auth-card .form-grid { gap: 12px; }
+    .auth-note { padding: 11px; border: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+
+    .mobile-nav { display: none; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; position: sticky; bottom: 0; z-index: 4; padding: 7px; padding-bottom: calc(7px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); background: var(--paper); }
+    .mobile-nav button { min-height: 48px; padding: 4px 2px; border-color: transparent; background: transparent; font-size: 11px; }
+    .mobile-nav button[aria-current="page"] { border-color: var(--line); background: var(--chalk); font-weight: 600; }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+    #app[data-preview="360"], #app[data-preview="390"] { grid-template-columns: 1fr; }
+    #app[data-preview="360"] .sidebar, #app[data-preview="390"] .sidebar { display: none; }
+    #app[data-preview="360"] .mobile-nav, #app[data-preview="390"] .mobile-nav { display: grid; }
+    #app[data-preview="360"] .topbar, #app[data-preview="390"] .topbar { padding-inline: 14px; }
+    #app[data-preview="360"] .page, #app[data-preview="390"] .page { padding: 24px 14px 28px; }
+    #app[data-preview="360"] .page-heading, #app[data-preview="390"] .page-heading { align-items: flex-start; flex-direction: column; }
+    #app[data-preview="360"] .page-heading-actions, #app[data-preview="390"] .page-heading-actions { justify-content: flex-start; }
+    #app[data-preview="360"] .dashboard-grid, #app[data-preview="390"] .dashboard-grid, #app[data-preview="360"] .workout-layout, #app[data-preview="390"] .workout-layout, #app[data-preview="360"] .grid-2, #app[data-preview="390"] .grid-2 { grid-template-columns: 1fr; }
+    #app[data-preview="360"] .hero-card, #app[data-preview="390"] .hero-card { grid-template-columns: 1fr; }
+    #app[data-preview="360"] .hero-mark, #app[data-preview="390"] .hero-mark { justify-content: flex-start; }
+    #app[data-preview="360"] .grid-3, #app[data-preview="390"] .grid-3, #app[data-preview="360"] .metric-grid, #app[data-preview="390"] .metric-grid { grid-template-columns: 1fr 1fr; }
+    #app[data-preview="360"] .form-grid, #app[data-preview="390"] .form-grid { grid-template-columns: 1fr; }
+    #app[data-preview="360"] .form-grid .full, #app[data-preview="390"] .form-grid .full { grid-column: auto; }
+    #app[data-preview="360"] .set-row, #app[data-preview="390"] .set-row { grid-template-columns: 30px minmax(0, 1fr) minmax(0, 1fr) 48px; gap: 6px; }
+    #app[data-preview="360"] .set-type, #app[data-preview="390"] .set-type { grid-column: 2 / -1; grid-row: 1; }
+    #app[data-preview="360"] .set-row .confirm, #app[data-preview="390"] .set-row .confirm { grid-column: 4; grid-row: 2; }
+    #app[data-preview="360"] .set-row .confirm, #app[data-preview="390"] .set-row .confirm { width: 48px; padding-inline: 0; font-size: 0; }
+    #app[data-preview="360"] .set-row .confirm::after, #app[data-preview="390"] .set-row .confirm::after { content: '✓'; font: 500 20px/1 var(--data); }
+    #app[data-preview="360"] .set-row .confirm.retry::after, #app[data-preview="390"] .set-row .confirm.retry::after { content: '↻'; }
+    #app[data-preview="360"] .set-row .confirm:disabled::after, #app[data-preview="390"] .set-row .confirm:disabled::after { content: '+'; color: var(--muted); }
+    #app[data-preview="360"] .set-state, #app[data-preview="390"] .set-state { grid-column: 2 / -1; }
+    #app[data-preview="360"] .history-table th:nth-child(3), #app[data-preview="360"] .history-table td:nth-child(3), #app[data-preview="390"] .history-table th:nth-child(3), #app[data-preview="390"] .history-table td:nth-child(3) { display: none; }
+
+    #app[data-preview="360"] h1, #app[data-preview="390"] h1 { font-size: 24px; }
+    #app[data-preview="360"] h2, #app[data-preview="390"] h2 { font-size: 21px; }
+    #app[data-preview="360"] h3, #app[data-preview="390"] h3 { font-size: 16px; }
+
+    #app[data-preview="768"] { grid-template-columns: 188px minmax(0, 1fr); }
+    #app[data-preview="768"] .sidebar { padding-inline: 12px; }
+    #app[data-preview="768"] .brand h1 { font-size: 18px; }
+    #app[data-preview="768"] .page { padding: 24px 18px 30px; }
+    #app[data-preview="768"] .dashboard-grid, #app[data-preview="768"] .workout-layout, #app[data-preview="768"] .grid-2 { grid-template-columns: 1fr; }
+    #app[data-preview="768"] .hero-card { grid-template-columns: minmax(0, 1fr) 96px; }
+    #app[data-preview="768"] h1 { font-size: 28px; }
+    #app[data-preview="768"] h2 { font-size: 22px; }
+    #app[data-preview="768"] .set-row { grid-template-columns: 30px minmax(0, 1fr) minmax(0, 1fr) 66px; gap: 6px; }
+    #app[data-preview="768"] .set-type { grid-column: 2 / -1; grid-row: 1; }
+    #app[data-preview="768"] .set-row .confirm { grid-column: 4; grid-row: 2; }
+    #app[data-preview="768"] .set-state { grid-column: 2 / -1; }
+
+    @media (max-width: 767px) {
+      .prototype-toolbar { align-items: flex-start; flex-direction: column; }
+      .preview-frame { width: min(var(--preview-width), calc(100vw - 16px)); }
+      #app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .mobile-nav { display: grid; }
+      .topbar { padding-inline: 14px; }
+      .page { padding: 24px 14px 28px; }
+      .page-heading { align-items: flex-start; flex-direction: column; }
+      .page-heading-actions { justify-content: flex-start; }
+      .dashboard-grid, .workout-layout, .grid-2 { grid-template-columns: 1fr; }
+      .hero-card { grid-template-columns: 1fr; }
+      .hero-mark { justify-content: flex-start; }
+      .grid-3, .metric-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-grid .full { grid-column: auto; }
+      .set-row { grid-template-columns: 30px minmax(0, 1fr) minmax(0, 1fr) 48px; gap: 6px; }
+      .set-type { grid-column: 2 / -1; grid-row: 1; }
+      .set-row .confirm { grid-column: 4; grid-row: 2; }
+      .set-row .confirm { width: 48px; padding-inline: 0; font-size: 0; }
+      .set-row .confirm::after { content: '✓'; font: 500 20px/1 var(--data); }
+      .set-row .confirm.retry::after { content: '↻'; }
+      .set-row .confirm:disabled::after { content: '+'; color: var(--muted); }
+      .set-state { grid-column: 2 / -1; }
+      .history-table th:nth-child(3), .history-table td:nth-child(3) { display: none; }
+    }
+
+    @media (min-width: 768px) and (max-width: 920px) {
+      #app { grid-template-columns: 188px minmax(0, 1fr); }
+      .sidebar { padding-inline: 12px; }
+      .brand h1 { font-size: 18px; }
+      .page { padding: 24px 18px 30px; }
+      .dashboard-grid, .workout-layout, .grid-2 { grid-template-columns: 1fr; }
+      h1 { font-size: 28px; }
+      h2 { font-size: 22px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="prototype-toolbar">
+    <div><strong>SPR-02 / Kinetic Ledger</strong><p>Prototipo de alta fidelidad · prueba visual, no frontend de producción</p></div>
+    <div class="prototype-controls" aria-label="Controles del prototipo">
+      <span>Viewport</span>
+      <button type="button" data-preview="360" aria-pressed="false">360</button>
+      <button type="button" data-preview="390" aria-pressed="false">390</button>
+      <button type="button" data-preview="768" aria-pressed="false">768</button>
+      <button type="button" data-preview="1280" aria-pressed="true">1280</button>
+      <button type="button" data-action="theme" aria-pressed="false">Tema dim</button>
+    </div>
+  </header>
+
+  <div class="preview-frame">
+    <div id="app" data-theme="light" data-preview="1280">
+      <aside class="sidebar">
+        <div class="brand"><span class="brand-mark" aria-hidden="true"></span><div><h1>Gym Tracker</h1><p>Registro de fuerza</p></div></div>
+        <div>
+          <p class="sidebar-label">Tu semana</p>
+          <nav class="sidebar-nav" aria-label="Navegación principal">
+            <button type="button" data-view="dashboard">Inicio</button>
+            <button type="button" data-view="routines">Rutinas</button>
+            <button type="button" data-view="workout">Entrenar</button>
+            <button type="button" data-view="history">Historial</button>
+            <button type="button" data-view="progress">Progreso</button>
+          </nav>
+        </div>
+        <div>
+          <p class="sidebar-label">Más</p>
+          <nav class="sidebar-nav" aria-label="Navegación secundaria">
+            <button type="button" data-view="routines-empty">Estado vacío</button>
+            <button type="button" data-view="history-empty">Historial vacío</button>
+            <button type="button" data-view="settings">Ajustes</button>
+            <button type="button" data-view="login">Acceso</button>
+          </nav>
+        </div>
+        <div class="sidebar-foot"><p>Semana 11 · 42 series</p><p>La constancia deja rastro.</p></div>
+      </aside>
+
+      <div class="app-main">
+        <header class="topbar">
+          <span class="topbar-route" id="route-label">/app</span>
+          <div class="topbar-actions"><button type="button" class="quiet" data-action="theme">☼ <span class="sr-only">Cambiar tema</span></button><button type="button" class="profile-chip" data-view="settings"><span class="avatar">TC</span><span><strong>Tayron</strong><br><span class="muted">Perfil</span></span></button></div>
+        </header>
+        <main id="page" aria-live="polite"></main>
+        <nav class="mobile-nav" aria-label="Navegación móvil"><button type="button" data-view="dashboard">Inicio</button><button type="button" data-view="routines">Rutinas</button><button type="button" data-view="workout">Entrenar</button><button type="button" data-view="history">Historial</button><button type="button" data-view="progress">Progreso</button></nav>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const app = document.getElementById('app');
+    const page = document.getElementById('page');
+    const routeLabel = document.getElementById('route-label');
+    let workoutMode = 'saved';
+
+    const chart = `
+      <svg viewBox="0 0 760 280" role="img" aria-labelledby="chart-title chart-desc">
+        <title id="chart-title">e1RM estimado de press banca</title>
+        <desc id="chart-desc">La estimación sube de 92,5 a 101,3 kilogramos entre el 2 y el 12 de septiembre.</desc>
+        <line class="chart-grid" x1="48" y1="42" x2="730" y2="42"></line>
+        <line class="chart-grid" x1="48" y1="112" x2="730" y2="112"></line>
+        <line class="chart-grid" x1="48" y1="182" x2="730" y2="182"></line>
+        <line class="chart-grid" x1="48" y1="238" x2="730" y2="238"></line>
+        <text class="chart-label" x="4" y="46">105</text><text class="chart-label" x="4" y="116">100</text><text class="chart-label" x="4" y="186">95</text><text class="chart-label" x="4" y="242">90</text>
+        <path class="chart-line" d="M82 204 L238 178 L395 140 L552 104 L704 70"></path>
+        <circle class="chart-point" cx="82" cy="204" r="6"></circle><circle class="chart-point" cx="238" cy="178" r="6"></circle><circle class="chart-point" cx="395" cy="140" r="6"></circle><circle class="chart-point" cx="552" cy="104" r="6"></circle><circle class="chart-point" cx="704" cy="70" r="7"></circle>
+        <text class="chart-value" x="668" y="56">101,3 kg</text>
+        <text class="chart-label" x="66" y="262">02 sep</text><text class="chart-label" x="222" y="262">05 sep</text><text class="chart-label" x="379" y="262">08 sep</text><text class="chart-label" x="536" y="262">10 sep</text><text class="chart-label" x="688" y="262">12 sep</text>
+      </svg>`;
+
+    const pageShell = (eyebrow, title, description, actions, content) => `
+      <div class="page">
+        <div class="page-heading">
+          <div><p class="eyebrow">${eyebrow}</p><h1>${title}</h1><p>${description}</p></div>
+          <div class="page-heading-actions">${actions || ''}</div>
+        </div>
+        ${content}
+      </div>`;
+
+    const pages = {
+      dashboard: () => pageShell(
+        'Martes · 12 septiembre',
+        'Entrena con intención.',
+        'Tu siguiente acción está preparada. Registra lo que ocurre; la historia se construye sola.',
+        '<button type="button" class="oxide" data-view="workout">Continuar workout</button><button type="button" class="quiet" data-view="settings">Ajustes</button>',
+        `<div class="dashboard-grid">
+          <section class="ledger-card oxide-edge hero-card">
+            <div class="hero-copy"><div><p class="card-kicker">Hilo activo · Push A</p><h2>Press banca</h2><p class="muted">Ejercicio 2 de 5 · el último set está listo para comparar.</p></div><div><div class="display-number">2<small>/ 5 ejercicios</small></div><div class="button-row" style="margin-top:16px"><button type="button" class="primary" data-view="workout">Volver a la sesión</button><button type="button" class="quiet" data-view="summary">Ver resumen</button></div></div></div>
+            <div class="hero-mark" aria-label="Índice visual de la sesión"><span></span><span></span><span></span><span></span><span></span></div>
+          </section>
+          <aside class="ledger-card soft"><p class="card-kicker">Esta semana</p><div class="metric-grid"><div class="metric"><div class="metric-label">Sesiones</div><div class="metric-value">3</div></div><div class="metric"><div class="metric-label">Series</div><div class="metric-value">42</div></div><div class="metric"><div class="metric-label">Mejor e1RM</div><div class="metric-value">101,3</div></div></div><div class="card-footer"><span class="muted">Tu ritmo actual</span><strong class="data">+12%</strong></div></aside>
+        </div>
+        <div class="grid-2">
+          <section class="ledger-card"><div class="section-heading"><div><p class="card-kicker">Plantillas</p><h3>Rutinas que repites</h3></div><button type="button" data-view="routines">Ver todas</button></div><div class="routine-list"><div class="routine-row"><div><strong>Push A</strong><div class="routine-meta"><span>5 ejercicios</span><span>·</span><span>3 × por semana</span></div></div><button type="button" class="primary" data-view="workout">Entrenar</button></div><div class="routine-row"><div><strong>Pull A</strong><div class="routine-meta"><span>4 ejercicios</span><span>·</span><span>última vez: domingo</span></div></div><button type="button" data-view="routines">Abrir</button></div></div></section>
+          <section class="ledger-card teal-edge"><div class="section-heading"><div><p class="card-kicker">Último registro</p><h3>La marca que dejó huella</h3></div><button type="button" data-view="history">Historial</button></div><div class="plate-index"><div class="plate-rail"><span class="plate-mark complete">1</span><span class="plate-mark complete">2</span><span class="plate-mark current">3</span></div><div class="plate-copy"><h4>Press banca</h4><p class="muted">80 kg × 8 · e1RM 101,3 kg</p><div class="button-row"><span class="tag teal">PR estimado</span><span class="tag">12 sep</span></div></div></div></section>
+        </div>`
+      ),
+
+      routines: () => pageShell(
+        'Plantillas editables',
+        'Rutinas',
+        'Prepara la estructura. El workout que ocurra después queda guardado como una fotografía propia.',
+        '<button type="button" class="oxide" data-view="routine-editor">Nueva rutina</button>',
+        `<section class="ledger-card"><div class="section-heading"><div><p class="card-kicker">3 activas · 1 archivada</p><h3>Tu biblioteca de sesiones</h3></div><button type="button" class="quiet" data-view="routines-empty">Ver estado vacío</button></div><div class="routine-list"><div class="routine-row"><div><h4>Push A</h4><div class="routine-meta"><span class="tag oxide">Activa</span><span>5 ejercicios</span><span>·</span><span>descanso 90–120 s</span></div></div><div class="row-actions"><button type="button" data-view="routine-editor">Editar</button><button type="button" class="primary" data-view="workout">Empezar</button></div></div><div class="routine-row"><div><h4>Pull A</h4><div class="routine-meta"><span class="tag">Activa</span><span>4 ejercicios</span><span>·</span><span>descanso 90 s</span></div></div><div class="row-actions"><button type="button" data-view="routine-editor">Editar</button><button type="button" data-view="workout">Empezar</button></div></div><div class="routine-row"><div><h4>Legs A</h4><div class="routine-meta"><span class="tag">Activa</span><span>6 ejercicios</span><span>·</span><span>descanso 120 s</span></div></div><div class="row-actions"><button type="button" data-view="routine-editor">Editar</button><button type="button" data-view="workout">Empezar</button></div></div></div></section>
+        <section class="grid-3"><div class="ledger-card soft"><p class="card-kicker">Regla</p><h4>Orden visible</h4><p class="muted">Cada ejercicio conserva su posición y objetivo.</p></div><div class="ledger-card soft"><p class="card-kicker">Regla</p><h4>Sin duplicados</h4><p class="muted">Un mismo ejercicio no aparece dos veces en la plantilla.</p></div><div class="ledger-card soft"><p class="card-kicker">Regla</p><h4>Historial intacto</h4><p class="muted">Editar aquí nunca reescribe una sesión terminada.</p></div></section>`
+      ),
+
+      'routines-empty': () => pageShell(
+        'Estado vacío',
+        'Empieza por una estructura.',
+        'Una rutina evita que vuelvas a escribir los mismos ejercicios entre series.',
+        '<button type="button" class="oxide" data-view="routine-editor">Crear primera rutina</button>',
+        `<section class="empty-state"><div><p class="eyebrow">Todavía no hay plantillas</p><h3>Tu primer entrenamiento empieza aquí.</h3><p>Crea una rutina con al menos un ejercicio. Podrás ajustar objetivos y descanso sin cambiar el historial.</p><button type="button" class="primary" data-view="routine-editor">Añadir rutina</button></div></section>`
+      ),
+
+      'routine-editor': () => pageShell(
+        'Editor de plantilla',
+        'Push A',
+        'La plantilla se puede cambiar. Las sesiones que ya ocurrieron no.',
+        '<button type="button" class="quiet" data-view="routines">Cancelar</button><button type="button" class="primary" data-view="routines">Guardar cambios</button>',
+        `<div class="grid-2"><section class="ledger-card"><div class="section-heading"><div><p class="card-kicker">Identidad</p><h3>Datos de la rutina</h3></div><span class="tag teal">Borrador válido</span></div><div class="form-grid"><label>Nombre<input type="text" value="Push A"></label><label>Comienzo de semana<select><option>Lunes</option><option>Domingo</option></select></label><label class="full">Descripción<textarea>Empuje horizontal y vertical. Mantén dos repeticiones en reserva.</textarea></label></div></section><section class="ledger-card soft"><p class="card-kicker">Vista previa</p><h3>5 ejercicios</h3><div class="routine-meta"><span class="tag">45–55 min</span><span class="tag brass">RIR 2</span></div><div class="card-footer"><span class="muted">Cambiar la plantilla no cambia workouts.</span></div></section></div>
+        <section class="ledger-card"><div class="section-heading"><div><p class="card-kicker">Orden de ejecución</p><h3>Ejercicios</h3></div><button type="button" class="oxide">Añadir ejercicio</button></div><div class="routine-list"><div class="routine-row"><div class="plate-index"><div class="plate-rail"><span class="plate-mark current">1</span></div><div class="plate-copy"><h4>Press banca</h4><div class="routine-meta"><span>3 series</span><span>·</span><span>8–12 reps</span><span>·</span><span>120 s</span></div></div></div><div class="row-actions"><button type="button">↑</button><button type="button">↓</button><button type="button">Quitar</button></div></div><div class="routine-row"><div class="plate-index"><div class="plate-rail"><span class="plate-mark current">2</span></div><div class="plate-copy"><h4>Press militar</h4><div class="routine-meta"><span>3 series</span><span>·</span><span>8–10 reps</span><span>·</span><span>90 s</span></div></div></div><div class="row-actions"><button type="button">↑</button><button type="button">↓</button><button type="button">Quitar</button></div></div><div class="routine-row"><div class="plate-index"><div class="plate-rail"><span class="plate-mark current">3</span></div><div class="plate-copy"><h4>Elevación lateral</h4><div class="routine-meta"><span>3 series</span><span>·</span><span>12–15 reps</span><span>·</span><span>60 s</span></div></div></div><div class="row-actions"><button type="button">↑</button><button type="button">↓</button><button type="button">Quitar</button></div></div></div></section>`
+      ),
+
+      workout: () => {
+        const error = workoutMode === 'error';
+        return pageShell(
+          'Workout activo · 18:42',
+          'Press banca',
+          'Push A · ejercicio 2 de 5 · la última vez está a la vista.',
+          '<button type="button" class="quiet" data-view="dashboard">Guardar y salir</button><button type="button" class="oxide" data-view="summary">Finalizar workout</button>',
+          `<div class="workout-layout"><section class="ledger-card ${error ? 'oxide-edge' : 'teal-edge'}"><div class="workout-header"><div><p class="card-kicker">Ejercicio 02 / 05</p><h2>Press banca</h2><p>Objetivo: 3 series · 8–12 reps · RIR 2</p></div><div class="workout-status"><span class="status-dot ${error ? 'error' : ''}"></span><span class="tag ${error ? 'oxide' : 'teal'}">${error ? 'No guardada' : 'Guardada'}</span></div></div><div class="set-context"><strong>Última vez</strong><span>75 kg × 10 · hace 5 días</span></div><div class="set-row"><span class="set-number">01</span><div class="set-type"><span class="tag teal">WORKING</span><small>serie completada</small></div><label>Peso<input inputmode="decimal" value="80" aria-label="Peso de la serie 1"></label><label>Reps<input inputmode="numeric" value="8" aria-label="Repeticiones de la serie 1"></label><button type="button" class="confirm primary" aria-label="Serie 1 guardada">Guardada</button></div><div class="set-row ${error ? 'error' : ''}"><span class="set-number">02</span><div class="set-type"><span class="tag oxide">WORKING</span><small>lista para confirmar</small></div><label>Peso<input inputmode="decimal" value="82.5" aria-label="Peso de la serie 2"></label><label>Reps<input inputmode="numeric" value="8" aria-label="Repeticiones de la serie 2"></label><button type="button" class="confirm ${error ? 'oxide retry' : 'primary'}" aria-label="${error ? 'Reintentar serie 2' : 'Confirmar serie 2'}" data-set-state="${error ? 'saved' : 'error'}">${error ? 'Reintentar' : 'Confirmar'}</button>${error ? '<div class="set-state"><strong>No se guardó la serie.</strong> Comprueba la conexión; tus valores permanecen en la fila.</div>' : '<div class="set-state">RIR opcional · el siguiente foco será la entrada de la serie 3.</div>'}</div><div class="set-row"><span class="set-number">03</span><div class="set-type"><span class="tag">WORKING</span><small>pendiente</small></div><label>Peso<input inputmode="decimal" placeholder="kg" aria-label="Peso de la serie 3"></label><label>Reps<input inputmode="numeric" placeholder="reps" aria-label="Repeticiones de la serie 3"></label><button type="button" class="confirm quiet" aria-label="Confirmar serie 3" disabled>Confirmar</button></div><div class="workout-actions"><div class="button-row"><button type="button" class="quiet" data-set-state="${error ? 'saved' : 'error'}">${error ? 'Ver guardado' : 'Simular error'}</button><button type="button" data-view="summary">Ver resumen</button></div><div class="rest-bar"><span>Descanso derivado</span><strong>01:42</strong></div></div></section><aside class="stack"><section class="ledger-card soft"><p class="card-kicker">Plate index</p><div class="plate-index"><div class="plate-rail"><span class="plate-mark complete">1</span><span class="plate-mark current">2</span><span class="plate-mark">3</span></div><div class="plate-copy"><h4>La sesión avanza</h4><p class="muted">Cada marca representa una serie real confirmada, no una meta genérica.</p></div></div></section><section class="ledger-card"><p class="card-kicker">Próximo ejercicio</p><h3>Press militar</h3><p class="muted">3 × 8–10 · RIR 2 · descanso 90 s</p><div class="card-footer"><span>Última vez</span><strong class="data">42,5 × 10</strong></div></section></aside></div>`
+        );
+      },
+
+      summary: () => pageShell(
+        'Workout completado',
+        'Buen trabajo, Tayron.',
+        'Tu sesión queda disponible como historia. La rutina puede cambiar sin reescribirla.',
+        '<button type="button" class="quiet" data-view="dashboard">Volver a inicio</button><button type="button" class="primary" data-view="history">Ver historial</button>',
+        `<section class="ledger-card teal-edge"><div class="between"><div><p class="card-kicker">Push A · 12 septiembre</p><h2>Sesión guardada</h2><p class="muted">Todos los datos confirmados llegaron a la nube.</p></div><span class="tag teal">COMPLETED</span></div><div class="metric-grid" style="margin-top:22px"><div class="metric"><div class="metric-label">Duración</div><div class="metric-value">42:18</div></div><div class="metric"><div class="metric-label">Series</div><div class="metric-value">15</div></div><div class="metric"><div class="metric-label">Volumen</div><div class="metric-value">3.420 kg</div></div></div></section><section class="summary-pr"><div><p class="card-kicker">Marca destacada</p><h3>Press banca</h3><p class="muted">Mejor e1RM estimado de esta sesión.</p></div><strong>101,3 kg</strong></section><div class="grid-2"><section class="ledger-card"><p class="card-kicker">Snapshot</p><h3>La plantilla de ese día</h3><div class="routine-meta"><span>Press banca</span><span>·</span><span>Press militar</span><span>·</span><span>Elevación lateral</span></div><div class="card-footer"><button type="button" data-view="history">Abrir detalle</button></div></section><section class="ledger-card soft"><p class="card-kicker">Siguiente lectura</p><h3>¿Qué cambió?</h3><p class="muted">Compara tus series con las sesiones anteriores desde Progreso.</p><button type="button" class="primary" data-view="progress">Ver progreso</button></section></div>`
+      ),
+
+      history: () => pageShell(
+        'Hechos guardados',
+        'Historial',
+        'Lee lo que ocurrió. Las rutinas actuales no cambian los snapshots de sesiones terminadas.',
+        '<button type="button" data-view="progress">Abrir progreso</button>',
+        `<section class="ledger-card"><div class="section-heading"><div><p class="card-kicker">12 sesiones · orden descendente</p><h3>Últimos workouts</h3></div><button type="button" class="quiet" data-view="history-empty">Ver vacío</button></div><div class="history-table-wrap"><table class="history-table"><thead><tr><th>Fecha / rutina</th><th>Duración</th><th>Series</th><th></th></tr></thead><tbody><tr><td><strong>12 sep · Push A</strong><br><span class="muted">snapshot · completado</span></td><td class="data-cell">42:18</td><td class="data-cell">15</td><td><button type="button" data-view="history-detail">Detalle</button></td></tr><tr><td><strong>10 sep · Pull A</strong><br><span class="muted">snapshot · completado</span></td><td class="data-cell">38:06</td><td class="data-cell">13</td><td><button type="button" data-view="history-detail">Detalle</button></td></tr><tr><td><strong>08 sep · Legs A</strong><br><span class="muted">snapshot · completado</span></td><td class="data-cell">51:02</td><td class="data-cell">18</td><td><button type="button" data-view="history-detail">Detalle</button></td></tr></tbody></table></div><div class="card-footer"><span class="muted">Página 1 de 4</span><button type="button">Cargar más</button></div></section>`
+      ),
+
+      'history-empty': () => pageShell(
+        'Estado vacío',
+        'Aquí aparecerán tus workouts.',
+        'Cuando completes una sesión, podrás volver a sus series y snapshots sin depender de la rutina actual.',
+        '<button type="button" class="oxide" data-view="routines">Crear una rutina</button>',
+        `<section class="empty-state"><div><p class="eyebrow">Sin sesiones completadas</p><h3>La primera marca la puedes hacer hoy.</h3><p>Inicia una rutina, confirma al menos una serie y finaliza el workout para que aparezca aquí.</p><button type="button" class="primary" data-view="workout">Empezar entrenamiento</button></div></section>`
+      ),
+
+      'history-detail': () => pageShell(
+        'Detalle snapshot · 12 septiembre',
+        'Push A',
+        'Este es el registro de ese día; no la versión actual de la rutina.',
+        '<button type="button" data-view="history">Volver al historial</button><button type="button" class="quiet">Eliminar workout</button>',
+        `<div class="grid-2"><section class="ledger-card teal-edge"><div class="between"><div><p class="card-kicker">Estado</p><h3>Completado</h3></div><span class="tag teal">READ-ONLY</span></div><div class="metric-grid" style="margin-top:18px"><div class="metric"><div class="metric-label">Duración</div><div class="metric-value">42:18</div></div><div class="metric"><div class="metric-label">Ejercicios</div><div class="metric-value">5</div></div><div class="metric"><div class="metric-label">Volumen</div><div class="metric-value">3.420</div></div></div></section><section class="ledger-card"><p class="card-kicker">Nota privada</p><label><span class="sr-only">Nota</span><textarea>Buen control en la segunda serie.</textarea></label><div class="card-footer"><button type="button" class="primary">Guardar nota</button></div></section></div><section class="ledger-card"><div class="section-heading"><div><p class="card-kicker">Rendimiento</p><h3>Series guardadas</h3></div><span class="tag">kg canónico</span></div><div class="routine-list"><div class="routine-row"><div class="plate-index"><div class="plate-rail"><span class="plate-mark complete">1</span></div><div class="plate-copy"><h4>Press banca</h4><div class="routine-meta"><span class="data">80 × 8</span><span>·</span><span class="data">82,5 × 8</span><span>·</span><span class="data">80 × 7</span></div></div></div><span class="tag oxide">PR e1RM</span></div><div class="routine-row"><div><h4>Press militar</h4><div class="routine-meta"><span class="data">42,5 × 10</span><span>·</span><span class="data">42,5 × 9</span></div></div><span class="tag">working</span></div></div></section>`
+      ),
+
+      progress: () => pageShell(
+        'Lectura de progreso',
+        'Lo que está cambiando.',
+        'e1RM estimado para comparar tendencias. Las series semanales siguen el músculo primario del snapshot.',
+        '<button type="button" data-view="progress-empty">Ver estado vacío</button>',
+        `<div class="grid-2"><section class="ledger-card"><div class="section-heading"><div><p class="card-kicker">Press banca · últimos 30 días</p><h3>e1RM estimado</h3></div><select style="width:auto;min-width:130px" aria-label="Rango de progreso"><option>30 días</option><option>6 meses</option></select></div><div class="chart-panel">${chart}<div class="chart-caption"><span>02 sep — 12 sep</span><strong class="data">+8,8 kg</strong></div></div></section><section class="ledger-card soft"><p class="card-kicker">Esta semana</p><h3>Series por músculo</h3><div class="routine-list" style="margin-top:20px"><div class="between"><span>Pecho</span><strong class="data">9</strong></div><div class="between"><span>Deltoide anterior</span><strong class="data">3</strong></div><div class="between"><span>Deltoide lateral</span><strong class="data">3</strong></div></div><div class="card-footer"><span class="muted">Solo working sets completados</span></div></section></div><section class="ledger-card"><div class="section-heading"><div><p class="card-kicker">Tabla equivalente</p><h3>Los puntos detrás de la línea</h3></div><button type="button" data-view="history">Ver sesiones</button></div><table class="history-table"><thead><tr><th>Fecha</th><th>Mejor serie</th><th>e1RM</th><th>Fuente</th></tr></thead><tbody><tr><td>12 sep</td><td class="data-cell">82,5 × 8</td><td class="data-cell">104,5 kg</td><td>Push A</td></tr><tr><td>10 sep</td><td class="data-cell">80 × 8</td><td class="data-cell">101,3 kg</td><td>Push A</td></tr><tr><td>08 sep</td><td class="data-cell">77,5 × 8</td><td class="data-cell">98,0 kg</td><td>Push A</td></tr></tbody></table></section>`
+      ),
+
+      'progress-empty': () => pageShell(
+        'Estado vacío',
+        'El progreso necesita una primera sesión.',
+        'No inventamos una línea cuando todavía no hay workouts completados.',
+        '<button type="button" class="oxide" data-view="workout">Empezar workout</button>',
+        `<section class="empty-state"><div><p class="eyebrow">Sin datos analíticos</p><h3>Completa una serie de trabajo.</h3><p>Después de finalizar tu workout podrás comparar e1RM, volumen y series semanales.</p><button type="button" class="primary" data-view="workout">Ir a entrenar</button></div></section>`
+      ),
+
+      settings: () => pageShell(
+        'Perfil y preferencias',
+        'Ajustes',
+        'Configura cómo se muestran tus datos sin cambiar la magnitud histórica guardada en kg.',
+        '<button type="button" class="primary">Guardar cambios</button>',
+        `<div class="grid-2"><section class="ledger-card"><p class="card-kicker">Perfil</p><h3>Tayron</h3><div class="form-grid" style="margin-top:18px"><label>Nombre visible<input type="text" value="Tayron"></label><label>Unidad de presentación<select><option>kg</option><option>lb</option></select></label><label>Zona horaria<select><option>America/La_Paz</option><option>America/New_York</option></select></label><label>Semana comienza<select><option>Lunes</option><option>Domingo</option></select></label></div></section><section class="ledger-card soft"><p class="card-kicker">Tema</p><h3>Claro de tiza</h3><p class="muted">La versión dim gym mantiene los mismos significados de estado y no cambia los datos.</p><button type="button" data-action="theme">Cambiar tema</button><div class="card-footer"><span class="muted">Preferencia local en el prototipo</span></div></section></div><section class="ledger-card"><div class="between"><div><p class="card-kicker">Cuenta</p><h3>Privada por defecto</h3><p class="muted">Tus rutinas, workouts y notas solo son visibles para ti.</p></div><button type="button" class="quiet" data-view="login">Cerrar sesión</button></div></section>`
+      ),
+
+      login: () => `<div class="page"><div class="auth-wrap"><section class="auth-card"><p class="eyebrow">Gym Tracker · Acceso privado</p><h2>Vuelve a tu ritmo.</h2><p class="muted">Consulta la última vez y registra la siguiente serie sin perder contexto.</p><div class="form-grid"><label class="full">Correo<input type="email" value="tayron@example.com"></label><label class="full">Contraseña<input type="password" value="password"></label></div><button type="button" class="oxide" style="width:100%" data-view="dashboard">Iniciar sesión</button><div class="auth-note">Tu sesión se restaura al recargar. Nunca exponemos claves privilegiadas en el navegador.</div><div class="between"><button type="button" class="link-button">Crear cuenta</button><button type="button" class="link-button">Recuperar contraseña</button></div></section></div></div>`
+    };
+
+    function setCurrentView(view) {
+      document.querySelectorAll('[data-view]').forEach((button) => {
+        if (button.closest('#page') || button.closest('.sidebar-nav') || button.closest('.mobile-nav')) {
+          const isActive = button.dataset.view === view;
+          if (button.closest('.sidebar-nav') || button.closest('.mobile-nav')) button.setAttribute('aria-current', isActive ? 'page' : 'false');
+        }
+      });
+    }
+
+    function bindViewActions() {
+      page.querySelectorAll('[data-view]').forEach((button) => {
+        button.addEventListener('click', () => render(button.dataset.view));
+      });
+      page.querySelectorAll('[data-action="theme"]').forEach((button) => {
+        button.addEventListener('click', toggleTheme);
+      });
+      page.querySelectorAll('[data-set-state]').forEach((button) => {
+        button.addEventListener('click', () => {
+          workoutMode = button.dataset.setState;
+          render('workout');
+        });
+      });
+    }
+
+    function render(view) {
+      const selected = pages[view] ? view : 'dashboard';
+      page.innerHTML = pages[selected]();
+      routeLabel.textContent = selected === 'login' ? '/login' : `/app/${selected === 'dashboard' ? '' : selected}`;
+      setCurrentView(selected);
+      bindViewActions();
+      window.location.hash = selected;
+    }
+
+    function toggleTheme() {
+      const dim = app.dataset.theme !== 'dim';
+      app.dataset.theme = dim ? 'dim' : 'light';
+      document.querySelectorAll('[data-action="theme"]').forEach((button) => button.setAttribute('aria-pressed', dim ? 'true' : 'false'));
+    }
+
+    document.querySelectorAll('[data-preview]').forEach((button) => {
+      button.addEventListener('click', () => {
+        app.dataset.preview = button.dataset.preview;
+        document.documentElement.style.setProperty('--preview-width', `${button.dataset.preview}px`);
+        document.querySelectorAll('[data-preview]').forEach((candidate) => candidate.setAttribute('aria-pressed', candidate === button ? 'true' : 'false'));
+      });
+    });
+
+    document.querySelectorAll('[data-view]').forEach((button) => {
+      button.addEventListener('click', () => render(button.dataset.view));
+    });
+    document.querySelectorAll('[data-action="theme"]').forEach((button) => {
+      button.addEventListener('click', toggleTheme);
+    });
+
+    const initial = window.location.hash.slice(1);
+    render(pages[initial] ? initial : 'dashboard');
+  </script>
+</body>
+</html>

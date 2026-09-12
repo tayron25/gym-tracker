@@ -15,9 +15,9 @@ Este archivo conserva el contexto operativo del proyecto para futuras sesiones d
 
 Fecha de referencia: 2026-09-12.
 
-- El espacio de trabajo contiene la especificación, este `AGENTS.md` y los artefactos UX de `docs/ux/`.
+- El espacio de trabajo contiene la especificación, este `AGENTS.md`, la guía local `docs/ux/DESIGN SKILL.md` y los artefactos UX de `docs/ux/`.
 - No existe todavía `src/`, `public/`, `supabase/`, `e2e/`, `package.json`, `README.md`, `.env.example`, configuración de CI ni pruebas.
-- No se detectó un directorio `.git`; los comandos Git no deben asumirse disponibles hasta que el repositorio se inicialice o se entregue uno.
+- Existe un repositorio Git en la rama `main`; al último inventario, `docs/ux/DESIGN SKILL.md` aparece como archivo no rastreado proporcionado por el usuario y no debe eliminarse ni modificarse sin autorización.
 - No hay aplicación ejecutable que probar ni implementación que revisar.
 - La estructura de carpetas mostrada en la especificación es una estructura objetivo, no un inventario actual.
 
@@ -27,9 +27,14 @@ Fecha de referencia: 2026-09-12.
 - `SPR-01` está aprobado y `CP-01A` fue cerrada el 2026-09-12; su alcance fue documentación UX y un prototipo estático de baja fidelidad.
 - Artefactos actuales de `SPR-01`: `docs/ux/sprint-01-information-architecture.md` y `docs/ux/sprint-01-wireframes.html`.
 - `CP-01A` está aprobada por el propietario; no se solicitaron cambios adicionales.
-- `SPR-02` todavía no ha comenzado y requiere una orden independiente.
+- `SPR-02` está aprobado y `CP-01B` fue cerrada el 2026-09-12; su alcance fue diseño visual, componentes documentados y prototipo de alta fidelidad estático.
+- Artefactos actuales de `SPR-02`: `docs/ux/sprint-02-design-system.md` y `docs/ux/sprint-02-high-fidelity.html`.
+- La dirección de SPR-02 fue revisada según la referencia visual del propietario: tema azul-negro, cian de acción, tarjetas compactas y tipografía menor en mobile.
+- El `SetRow` mobile fue corregido: campos con ancho mínimo, confirmación compacta de 48 px con etiqueta accesible, estados `✓`/`↻`/`+` y navegación inferior con safe area.
+- `CP-01B` está aprobada por el propietario; se corrigieron los problemas responsive del `SetRow` mobile.
+- `SPR-03` todavía no ha comenzado y requiere una orden independiente.
 - La especificación exige una orden independiente para iniciar cada sprint; la aprobación de uno no autoriza automáticamente el siguiente.
-- No iniciar frontend, backend, migraciones, dependencias, prototipos adicionales o configuración de despliegue sin una solicitud explícita que autorice ese alcance.
+- No iniciar frontend de producción, backend, migraciones, dependencias, prototipos adicionales o configuración de despliegue sin una solicitud explícita que autorice ese alcance.
 - Trabajar un sprint a la vez y no adelantar trabajo de sprints posteriores.
 
 ## Producto V1 resumido
@@ -110,3 +115,4 @@ Al entregar un cambio:
 - Tablas previstas: `profiles`, `muscle_groups`, `exercises`, `exercise_muscles`, `routines`, `routine_exercises`, `workouts`, `workout_exercises` y `sets`, además de `auth.users`.
 - Vistas/funciones previstas: `v_exercise_history`, `v_workout_summary`, `v_weekly_muscle_sets`, `v_exercise_best_sets`, `start_workout_from_routine`, `complete_workout` y `duplicate_routine`.
 - La plantilla de encargo de la especificación exige objetivo, alcance, historias, reglas, pruebas, restricciones, evidencia y orden de inspección/planificación/implementación/verificación.
+- `docs/ux/DESIGN SKILL.md` guía la dirección visual de SPR-02: planificar y criticar antes de construir, elegir una identidad específica al dominio y revisar responsive, foco y movimiento reducido.
