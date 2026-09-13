@@ -21,7 +21,7 @@ export const MOCK_EXPIRED_RESET_TOKEN = "expired";
 
 const SESSION_MARKER_KEY = "gym-tracker.mock-session";
 const SESSION_MARKER = "active";
-const DEMO_USER_ID = "mock-user-tayron";
+export const DEMO_USER_ID = "mock-user-tayron";
 
 type MockUser = {
   id: string;
@@ -111,7 +111,10 @@ export const createMockAuthRepository = (): AuthRepository => {
 
     async signOut() {
       currentUserId = null;
-      sessionStorage.removeItem(SESSION_MARKER_KEY);
+      const mockKeys = Array.from({ length: sessionStorage.length }, (_, index) =>
+        sessionStorage.key(index),
+      ).filter((key): key is string => Boolean(key?.startsWith("gym-tracker.mock-")));
+      mockKeys.forEach((key) => sessionStorage.removeItem(key));
       notify(null);
     },
 
@@ -180,4 +183,3 @@ export const createMockAuthRepository = (): AuthRepository => {
     },
   };
 };
-

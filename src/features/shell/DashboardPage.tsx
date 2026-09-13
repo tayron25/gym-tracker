@@ -18,16 +18,16 @@ export function DashboardPage() {
 
       <div className="dashboard-grid">
         <Card className="hero-card">
-          <div className="card-kicker">SPR-03 · Shell frontend</div>
-          <h2>La navegación ya tiene un lugar para cada sesión.</h2>
+          <div className="card-kicker">SPR-04 · Plantillas</div>
+          <h2>Tu biblioteca de entrenamiento ya se puede preparar.</h2>
           <p className="muted">
-            Las pantallas de rutinas, workout, historial y progreso están preparadas como destinos
-            seguros. Su comportamiento llegará en los sprints correspondientes.
+            Busca ejercicios, crea movimientos propios y organiza rutinas completas antes de entrar
+            al flujo de workout.
           </p>
           <div className="rail" aria-label="Progreso de preparación">
             <span className="rail-mark rail-complete">01</span>
-            <span className="rail-mark rail-current">02</span>
-            <span className="rail-mark">03</span>
+            <span className="rail-mark rail-complete">02</span>
+            <span className="rail-mark rail-current">03</span>
             <span className="rail-mark">04</span>
           </div>
         </Card>
@@ -44,11 +44,11 @@ export function DashboardPage() {
       <section className="card next-sprint-card">
         <div>
           <p className="card-kicker">Siguiente lectura</p>
-          <h2>Tu shell no pierde contexto.</h2>
-          <p className="muted">Usa el menú para revisar los destinos disponibles sin modificar datos de entrenamiento.</p>
+          <h2>Prepara una rutina verificable.</h2>
+          <p className="muted">Añade ejercicios, define objetivos y ordénalos con controles accesibles.</p>
         </div>
-        <Link className="button button-quiet button-link" to="/app/settings">
-          Revisar perfil <ArrowRight size={17} aria-hidden="true" />
+        <Link className="button button-quiet button-link" to="/app/routines">
+          Abrir rutinas <ArrowRight size={17} aria-hidden="true" />
         </Link>
       </section>
     </main>

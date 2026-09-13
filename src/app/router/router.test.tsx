@@ -49,10 +49,11 @@ describe("rutas protegidas", () => {
     expect(sessionStorage.getItem("gym-tracker.mock-session")).toBe("active");
   });
 
-  it("el logout elimina únicamente la marca de sesión", async () => {
+  it("el logout elimina la marca de sesión y los datos privados simulados", async () => {
     const user = userEvent.setup();
     const repository = createMockAuthRepository();
     sessionStorage.setItem("gym-tracker.mock-session", "active");
+    sessionStorage.setItem("gym-tracker.mock-training-data", "datos privados simulados");
 
     render(
       <MemoryRouter initialEntries={["/app"]}>
@@ -73,6 +74,7 @@ describe("rutas protegidas", () => {
     expect(sessionStorage.getItem("gym-tracker.mock-session")).toBe("active");
     await user.click(screen.getByRole("button", { name: "Cerrar sesión" }));
     expect(sessionStorage.getItem("gym-tracker.mock-session")).toBeNull();
+    expect(sessionStorage.getItem("gym-tracker.mock-training-data")).toBeNull();
     expect(await screen.findByText("Acceso después de logout")).toBeInTheDocument();
     expect(DEMO_CREDENTIALS.email).toBe("tayron@example.com");
   });

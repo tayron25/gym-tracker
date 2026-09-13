@@ -1,6 +1,6 @@
 # Gym Tracker
 
-Frontend mobile-first de Gym Tracker. En SPR-03 la autenticación es simulada y no requiere Supabase ni variables de entorno.
+Frontend mobile-first de Gym Tracker. En SPR-04 la autenticación, los ejercicios y las rutinas usan repositorios simulados; no requiere Supabase ni variables de entorno.
 
 ## Requisitos
 
@@ -65,7 +65,7 @@ La cuenta ficticia disponible es:
 - Correo: `tayron@example.com`
 - Contraseña: `password`
 
-La aplicación solo guarda la marca ficticia `gym-tracker.mock-session` en `sessionStorage`. No guarda datos privados en `localStorage` ni IndexedDB.
+La aplicación usa `sessionStorage` para la marca ficticia `gym-tracker.mock-session` y el estado temporal `gym-tracker.mock-training-data`. Los ejercicios y rutinas creados sobreviven una recarga dentro de la misma sesión; al cerrar sesión se eliminan ambas claves. No se usa `localStorage` ni IndexedDB.
 
 ## Comandos de verificación
 
@@ -85,6 +85,11 @@ El build de producción se genera en `dist/`.
 - `/forgot-password`
 - `/reset-password`
 - `/app`
+- `/app/routines`
+- `/app/routines/new`
+- `/app/routines/:id`
+- `/app/exercises`
+- `/app/exercises/:id`
 - `/app/settings`
 
-Las rutas de producto posteriores a SPR-03 se muestran actualmente como placeholders.
+Workout activo, historial y progreso permanecen como placeholders porque corresponden a sprints posteriores.

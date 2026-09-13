@@ -1,10 +1,4 @@
-import {
-  Activity,
-  BarChart3,
-  ClipboardList,
-  Dumbbell,
-  History,
-} from "lucide-react";
+import { BarChart3, Dumbbell, History } from "lucide-react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "../providers/AuthProvider";
 import { LoadingState } from "../../components/shared/LoadingState";
@@ -13,6 +7,10 @@ import { LoginPage } from "../../features/auth/LoginPage";
 import { RegisterPage } from "../../features/auth/RegisterPage";
 import { ResetPasswordPage } from "../../features/auth/ResetPasswordPage";
 import { ProfilePage } from "../../features/profile/ProfilePage";
+import { ExerciseDetailPage } from "../../features/exercises/ExerciseDetailPage";
+import { ExercisesPage } from "../../features/exercises/ExercisesPage";
+import { RoutineEditorPage } from "../../features/routines/RoutineEditorPage";
+import { RoutinesPage } from "../../features/routines/RoutinesPage";
 import { AppShell } from "../../features/shell/AppShell";
 import { DashboardPage } from "../../features/shell/DashboardPage";
 import { PlaceholderPage } from "../../features/shell/PlaceholderPage";
@@ -63,17 +61,9 @@ export function AppRouter() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
           <Route path="/app" element={<DashboardPage />} />
-          <Route
-            path="/app/routines"
-            element={
-              <PlaceholderPage
-                eyebrow="Plantillas editables"
-                title="Rutinas."
-                description="El lugar para preparar la estructura de tus sesiones."
-                icon={ClipboardList}
-              />
-            }
-          />
+          <Route path="/app/routines" element={<RoutinesPage />} />
+          <Route path="/app/routines/new" element={<RoutineEditorPage />} />
+          <Route path="/app/routines/:id" element={<RoutineEditorPage />} />
           <Route
             path="/app/workout/active"
             element={
@@ -96,17 +86,8 @@ export function AppRouter() {
               />
             }
           />
-          <Route
-            path="/app/exercises"
-            element={
-              <PlaceholderPage
-                eyebrow="Catálogo"
-                title="Ejercicios."
-                description="Movimientos del sistema y ejercicios personalizados."
-                icon={Activity}
-              />
-            }
-          />
+          <Route path="/app/exercises" element={<ExercisesPage />} />
+          <Route path="/app/exercises/:id" element={<ExerciseDetailPage />} />
           <Route
             path="/app/progress"
             element={
@@ -127,4 +108,3 @@ export function AppRouter() {
     </Routes>
   );
 }
-

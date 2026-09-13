@@ -1,0 +1,65 @@
+{
+  "generatedAt": "2026-09-13T01:52:32.133Z",
+  "browser": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "captures": [
+    {
+      "width": 360,
+      "height": 800,
+      "path": "/app/routines/routine-push-a",
+      "file": "360-routine-editor.png",
+      "viewport": 360,
+      "clientWidth": 360,
+      "scrollWidth": 360,
+      "bodyScrollWidth": 360,
+      "heading": "Push A",
+      "noHorizontalOverflow": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "path": "/app/exercises",
+      "file": "390-exercise-catalog.png",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "heading": "Ejercicios.",
+      "noHorizontalOverflow": true
+    },
+    {
+      "width": 768,
+      "height": 900,
+      "path": "/app/routines",
+      "file": "768-routines.png",
+      "viewport": 768,
+      "clientWidth": 768,
+      "scrollWidth": 768,
+      "bodyScrollWidth": 768,
+      "heading": "Rutinas.",
+      "noHorizontalOverflow": true
+    },
+    {
+      "width": 1280,
+      "height": 900,
+      "path": "/app/exercises/exercise-lateral-custom",
+      "file": "1280-exercise-detail.png",
+      "viewport": 1280,
+      "clientWidth": 1280,
+      "scrollWidth": 1280,
+      "bodyScrollWidth": 1280,
+      "heading": "Elevación lateral en cable",
+      "noHorizontalOverflow": true
+    }
+  ],
+  "keyboard": {
+    "dialogOpened": true,
+    "dialogInitialFocus": "exercise-name",
+    "dialogReturnedFocus": "Nuevo ejercicio",
+    "reorderFocused": "Bajar Press banca",
+    "reorderedHeadings": [
+      "Press militar",
+      "Press banca",
+      "Elevación lateral en cable"
+    ]
+  }
+}

@@ -18,8 +18,8 @@ Fecha de referencia: 2026-09-12.
 - El espacio de trabajo contiene la especificación, este `AGENTS.md`, la guía local `docs/ux/DESIGN SKILL.md`, los artefactos UX de `docs/ux/` y el frontend inicial de SPR-03.
 - Existe `src/`, `package.json`, `package-lock.json`, `.github/workflows/ci.yml`, `vite.config.ts`, configuración TypeScript y `README.md`; todavía no existen `public/`, `supabase/`, `e2e/` ni `.env.example`.
 - Existe un repositorio Git en la rama `main`; `docs/ux/DESIGN SKILL.md` está rastreado y no debe eliminarse ni modificarse sin autorización.
-- El frontend actual usa autenticación simulada y un repositorio mock; no importa Supabase ni persiste datos privados en el navegador.
-- La estructura de carpetas mostrada en la especificación sigue siendo una estructura objetivo; solo se implementó el shell y la autenticación de SPR-03.
+- El frontend usa autenticación y repositorios de ejercicios/rutinas simulados; no importa Supabase. Los datos mock de plantillas se guardan solo durante la sesión en `gym-tracker.mock-training-data` y se limpian al cerrar sesión.
+- La estructura de carpetas mostrada en la especificación sigue siendo una estructura objetivo; están implementados el shell y la autenticación de SPR-03, además del frontend mock de ejercicios y rutinas de SPR-04.
 
 ## Puertas y fase actual
 
@@ -33,6 +33,7 @@ Fecha de referencia: 2026-09-12.
 - El `SetRow` mobile fue corregido: campos con ancho mínimo, confirmación compacta de 48 px con etiqueta accesible, estados `✓`/`↻`/`+` y navegación inferior con safe area.
 - `CP-01B` está aprobada por el propietario; se corrigieron los problemas responsive del `SetRow` mobile.
 - `SPR-03` está terminado dentro del alcance aprobado; CP-02A fue cerrada y aprobada por el propietario el 2026-09-12 tras probar el acceso desde un celular en la misma red Wi‑Fi.
+- `SPR-04` está terminado dentro del alcance aprobado; CP-02B fue cerrada y aprobada por el propietario el 2026-09-12 con evidencia automatizada de flujo mock, persistencia de sesión, responsive y teclado.
 - La especificación exige una orden independiente para iniciar cada sprint; la aprobación de uno no autoriza automáticamente el siguiente.
 - No iniciar backend, Supabase, migraciones, funcionalidades de sprints posteriores, prototipos adicionales o configuración de despliegue sin una solicitud explícita que autorice ese alcance.
 - Trabajar un sprint a la vez y no adelantar trabajo de sprints posteriores.

@@ -11,7 +11,9 @@ export class ErrorBoundary extends Component<PropsWithChildren, ErrorBoundarySta
     return { hasError: true };
   }
 
-  componentDidCatch(_error: Error, _info: ErrorInfo) {
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    void error;
+    void info;
     // La implementación real de observabilidad se conectará sin registrar datos sensibles.
   }
 
@@ -30,4 +32,3 @@ export class ErrorBoundary extends Component<PropsWithChildren, ErrorBoundarySta
     );
   }
 }
-
