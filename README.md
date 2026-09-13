@@ -1,6 +1,6 @@
 # Gym Tracker
 
-Frontend mobile-first de Gym Tracker. En SPR-04 la autenticación, los ejercicios y las rutinas usan repositorios simulados; no requiere Supabase ni variables de entorno.
+Frontend mobile-first de Gym Tracker. En SPR-05 la autenticación, los ejercicios, las rutinas y el workout activo usan repositorios simulados; no requiere Supabase ni variables de entorno.
 
 ## Requisitos
 
@@ -92,4 +92,4 @@ El build de producción se genera en `dist/`.
 - `/app/exercises/:id`
 - `/app/settings`
 
-Workout activo, historial y progreso permanecen como placeholders porque corresponden a sprints posteriores.
+Historial y progreso permanecen como placeholders porque corresponden a sprints posteriores. El workout activo ya permite iniciar una rutina, registrar series, reintentar errores y finalizar o descartar la sesión dentro de la sesión simulada.

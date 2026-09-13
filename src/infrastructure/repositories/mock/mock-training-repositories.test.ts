@@ -48,9 +48,9 @@ describe("repositorios mock de plantillas", () => {
     expect(copy.items.map((item) => item.id)).not.toEqual(original.items.map((item) => item.id));
 
     const reordered = await routines.reorder(original.id, original.items.map((item) => item.id).reverse());
-    expect(reordered.items.map((item) => item.position)).toEqual([1, 2, 3]);
+    expect(reordered.items.map((item) => item.position)).toEqual([1, 2, 3, 4, 5]);
     expect(reordered.items[0]?.exerciseId).toBe("exercise-lateral-custom");
-    await expect(routines.reorder(original.id, [original.items[0]!.id, original.items[0]!.id, original.items[2]!.id]))
+    await expect(routines.reorder(original.id, [original.items[0]!.id, original.items[0]!.id, original.items[2]!.id, original.items[3]!.id, original.items[4]!.id]))
       .rejects.toMatchObject({ code: "VALIDATION_ERROR" });
   });
 
@@ -61,5 +61,22 @@ describe("repositorios mock de plantillas", () => {
 
     const reloaded = createMockTrainingRepositories();
     await expect(reloaded.exercises.getById(created.id)).resolves.toMatchObject({ name: "Press inclinado propio" });
+  });
+
+  it("migra la sesión anterior y completa el fixture Push A con cinco ejercicios", async () => {
+    const repositories = createMockTrainingRepositories();
+    const sourceRoutine = await repositories.routines.getById("routine-push-a");
+    const exercises = await repositories.exercises.list({ search: "", primaryMuscleId: null, equipment: null, includeArchived: true });
+    const oldRoutine = {
+      ...sourceRoutine,
+      items: sourceRoutine.items.filter((item) => ["exercise-press-banca", "exercise-press-militar", "exercise-lateral-custom"].includes(item.exerciseId)),
+    };
+    sessionStorage.setItem(MOCK_TRAINING_DATA_KEY, JSON.stringify({ version: 1, exercises, routines: [oldRoutine] }));
+
+    const migrated = createMockTrainingRepositories();
+    const routine = await migrated.routines.getById("routine-push-a");
+    expect(routine.items).toHaveLength(5);
+    expect(await migrated.exercises.getById("exercise-aperturas")).toMatchObject({ isSystem: true });
+    expect(await migrated.workouts.getActive()).toBeNull();
   });
 });

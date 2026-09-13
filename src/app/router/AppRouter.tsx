@@ -1,4 +1,4 @@
-import { BarChart3, Dumbbell, History } from "lucide-react";
+import { BarChart3, History } from "lucide-react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "../providers/AuthProvider";
 import { LoadingState } from "../../components/shared/LoadingState";
@@ -11,6 +11,7 @@ import { ExerciseDetailPage } from "../../features/exercises/ExerciseDetailPage"
 import { ExercisesPage } from "../../features/exercises/ExercisesPage";
 import { RoutineEditorPage } from "../../features/routines/RoutineEditorPage";
 import { RoutinesPage } from "../../features/routines/RoutinesPage";
+import { ActiveWorkoutPage } from "../../features/active-workout/ActiveWorkoutPage";
 import { AppShell } from "../../features/shell/AppShell";
 import { DashboardPage } from "../../features/shell/DashboardPage";
 import { PlaceholderPage } from "../../features/shell/PlaceholderPage";
@@ -66,14 +67,7 @@ export function AppRouter() {
           <Route path="/app/routines/:id" element={<RoutineEditorPage />} />
           <Route
             path="/app/workout/active"
-            element={
-              <PlaceholderPage
-                eyebrow="Entrenamiento"
-                title="Workout activo."
-                description="La pantalla donde cada serie confirmada deja un registro real."
-                icon={Dumbbell}
-              />
-            }
+            element={<ActiveWorkoutPage />}
           />
           <Route
             path="/app/history"

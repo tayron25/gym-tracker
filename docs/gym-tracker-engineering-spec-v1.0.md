@@ -4,7 +4,7 @@
 > Propietario del producto: Tayron Cuéllar  
 > Versión: 1.0 línea base aprobada  
 > Fecha: 12 de septiembre de 2026  
-> Estado: Puerta 0, CP-01B y CP-02A aprobadas; SPR-02 y SPR-03 terminados
+> Estado: Puerta 0, CP-01B, CP-02A, CP-02B y CP-02C aprobadas; SPR-02, SPR-03, SPR-04 y SPR-05 terminados
 
 ---
 
@@ -1815,6 +1815,7 @@ Todo cambio incluye:
 | CR-000 Crear esta línea base integral | Aprobado el 2026-09-12 |
 | CR-001 Excluir eliminación de cuenta y datos de V1; actualizar RF-006 y su trazabilidad | Aprobado por Tayron el 2026-09-12 |
 | CR-002 Aclaraciones de SPR-04: conservar este archivo como fuente normativa, extender el sistema visual aprobado a ejercicios y operaciones faltantes, persistir datos mock solo en `sessionStorage`, usar sufijos únicos al duplicar rutinas, habilitar lint real de TypeScript y no iniciar workouts antes de SPR-05 | Aprobado por Tayron el 2026-09-12 |
+| CR-003 Decisión de SPR-05: dejar fuera el inicio de workout vacío de la interfaz y del adaptador mock; RF-031 permanece diferido por ser prioridad Should | Aprobado por Tayron el 2026-09-12 |
 
 ---
 
@@ -1855,8 +1856,10 @@ Todo cambio incluye:
 - [x] SPR-03 terminado y CP-02A cerrada el 2026-09-12; la aplicación fue probada desde un celular en la misma red Wi‑Fi usando la URL de red de Vite.
 - [x] Inicio de SPR-04 y aclaraciones CR-002 autorizados por Tayron el 2026-09-12.
 - [x] SPR-04 terminado y CP-02B cerrado por aprobación de Tayron el 2026-09-12, con evidencia automatizada de flujo mock, persistencia de sesión, responsive y teclado.
+- [x] Inicio de SPR-05 autorizado por Tayron el 2026-09-12.
+- [x] SPR-05 terminado y CP-02C cerrado por aprobación de Tayron el 2026-09-12, con evidencia automatizada del flujo de cinco ejercicios, errores/reintentos, doble toque, teclado y resumen provisional.
 
-**Registro de aceptación:** el 12 de septiembre de 2026, Tayron indicó que leyó el documento, consideró excelente la propuesta y solicitó crear la versión 1.0. Esta aprobación cierra CP-00. Posteriormente autorizó SPR-03, con eliminación de cuenta fuera de V1 y autenticación simulada limitada a una marca en `sessionStorage`. Tras probar el acceso desde un celular conectado a la misma red Wi‑Fi, Tayron aprobó el incremento y cerró CP-02A. En la misma fecha aprobó el incremento completo de SPR-04 y cerró CP-02B; esta aprobación no autoriza iniciar SPR-05.
+**Registro de aceptación:** el 12 de septiembre de 2026, Tayron indicó que leyó el documento, consideró excelente la propuesta y solicitó crear la versión 1.0. Esta aprobación cierra CP-00. Posteriormente autorizó SPR-03, con eliminación de cuenta fuera de V1 y autenticación simulada limitada a una marca en `sessionStorage`. Tras probar el acceso desde un celular conectado a la misma red Wi‑Fi, Tayron aprobó el incremento y cerró CP-02A. En la misma fecha aprobó el incremento completo de SPR-04 y cerró CP-02B; esa aprobación no autorizaba iniciar SPR-05 en ese momento. Posteriormente autorizó explícitamente iniciar SPR-05 y aprobó el incremento completo, cerrando CP-02C.
 
 ---
 

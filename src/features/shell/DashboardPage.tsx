@@ -9,7 +9,7 @@ export function DashboardPage() {
         <div>
           <p className="eyebrow">Tu espacio privado</p>
           <h1>Entrena con intención.</h1>
-          <p>El shell está listo para que cada sprint añada una parte del registro de fuerza.</p>
+          <p>La sesión activa ya permite registrar cada serie con contexto, confirmación y reintento.</p>
         </div>
         <Link className="button button-primary button-link" to="/app/workout/active">
           Abrir entrenamiento <ArrowRight size={17} aria-hidden="true" />
@@ -18,17 +18,18 @@ export function DashboardPage() {
 
       <div className="dashboard-grid">
         <Card className="hero-card">
-          <div className="card-kicker">SPR-04 · Plantillas</div>
-          <h2>Tu biblioteca de entrenamiento ya se puede preparar.</h2>
+          <div className="card-kicker">SPR-05 · Workout activo</div>
+          <h2>Tu próxima sesión ya tiene un lugar.</h2>
           <p className="muted">
-            Busca ejercicios, crea movimientos propios y organiza rutinas completas antes de entrar
-            al flujo de workout.
+            Abre una rutina, registra peso y repeticiones, y conserva los valores aunque una operación
+            necesite reintento.
           </p>
           <div className="rail" aria-label="Progreso de preparación">
             <span className="rail-mark rail-complete">01</span>
             <span className="rail-mark rail-complete">02</span>
-            <span className="rail-mark rail-current">03</span>
-            <span className="rail-mark">04</span>
+            <span className="rail-mark rail-complete">03</span>
+            <span className="rail-mark rail-complete">04</span>
+            <span className="rail-mark rail-current">05</span>
           </div>
         </Card>
         <Card className="card-soft">
@@ -44,8 +45,8 @@ export function DashboardPage() {
       <section className="card next-sprint-card">
         <div>
           <p className="card-kicker">Siguiente lectura</p>
-          <h2>Prepara una rutina verificable.</h2>
-          <p className="muted">Añade ejercicios, define objetivos y ordénalos con controles accesibles.</p>
+          <h2>Prepara la estructura que repetirás.</h2>
+          <p className="muted">Las rutinas siguen siendo editables; cada workout conserva su propia fotografía.</p>
         </div>
         <Link className="button button-quiet button-link" to="/app/routines">
           Abrir rutinas <ArrowRight size={17} aria-hidden="true" />

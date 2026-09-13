@@ -84,6 +84,7 @@ export function RoutinesPage() {
             </div>
             <div className="card-actions">
               <Link className="button button-primary button-link" to={`/app/routines/${routine.id}`}>{routine.isArchived ? "Ver" : "Editar"}</Link>
+              {!routine.isArchived && routine.items.length > 0 && <Link className="button button-primary button-link" to={`/app/workout/active?routineId=${encodeURIComponent(routine.id)}`}>Empezar</Link>}
               {!routine.isArchived && <Button variant="quiet" onClick={() => void duplicate(routine)}><Copy size={16} aria-hidden="true" /> Duplicar</Button>}
               <Button variant="quiet" onClick={() => void toggleArchive(routine)}>
                 {routine.isArchived ? <RotateCcw size={16} aria-hidden="true" /> : <Archive size={16} aria-hidden="true" />}

@@ -1,4 +1,11 @@
-export type RepositoryErrorCode = "NOT_FOUND" | "FORBIDDEN" | "VALIDATION_ERROR" | "CONFLICT";
+export type RepositoryErrorCode =
+  | "NOT_FOUND"
+  | "FORBIDDEN"
+  | "VALIDATION_ERROR"
+  | "CONFLICT"
+  | "ACTIVE_WORKOUT_EXISTS"
+  | "NETWORK_ERROR"
+  | "UNKNOWN";
 
 export class RepositoryError extends Error {
   readonly code: RepositoryErrorCode;

@@ -8,19 +8,35 @@ import type {
   MuscleGroup,
 } from "../../../domain/types/exercise";
 import type { Routine, RoutineInput } from "../../../domain/types/routine";
+import type {
+  CompletedSet,
+  PreviousExerciseSession,
+  SetInput,
+  Workout,
+  WorkoutExercise,
+} from "../../../domain/types/workout";
 import {
   exerciseInputSchema,
   normalizeName,
   routineInputSchema,
 } from "../../../domain/validation/training-validation";
+import { setInputSchema } from "../../../domain/validation/workout-validation";
 import { DEMO_USER_ID } from "./mock-auth-repository";
 
 export const MOCK_TRAINING_DATA_KEY = "gym-tracker.mock-training-data";
 
+export type MockOperation = "startFromRoutine" | "createSet";
+
+export type MockTrainingOptions = {
+  latencyMs?: number;
+  failures?: Partial<Record<MockOperation, number>>;
+};
+
 type MockTrainingState = {
-  version: 1;
+  version: 2;
   exercises: Exercise[];
   routines: Routine[];
+  workouts: Workout[];
 };
 
 const muscleGroups: MuscleGroup[] = [
@@ -59,14 +75,15 @@ const systemExercise = (
   notes: null,
 });
 
-const createInitialState = (): MockTrainingState => ({
-  version: 1,
-  exercises: [
+const createInitialState = (): MockTrainingState => {
+  const exercises: Exercise[] = [
     systemExercise("exercise-press-banca", "Press banca", "barbell", 1, [8, 9]),
     systemExercise("exercise-press-militar", "Press militar", "barbell", 9, [8]),
     systemExercise("exercise-sentadilla", "Sentadilla", "barbell", 3, [4, 5]),
     systemExercise("exercise-peso-muerto", "Peso muerto rumano", "barbell", 4, [5, 2]),
     systemExercise("exercise-dominadas", "Dominadas", "bodyweight", 2, [7]),
+    systemExercise("exercise-aperturas", "Aperturas con mancuernas", "dumbbell", 1, []),
+    systemExercise("exercise-triceps-polea", "Extensión de tríceps en polea", "cable", 8, []),
     {
       id: "exercise-lateral-custom",
       userId: DEMO_USER_ID,
@@ -95,8 +112,8 @@ const createInitialState = (): MockTrainingState => ({
       secondaryMuscleIds: [],
       notes: null,
     },
-  ],
-  routines: [
+  ];
+  const routines: Routine[] = [
     {
       id: "routine-push-a",
       userId: DEMO_USER_ID,
@@ -127,9 +144,31 @@ const createInitialState = (): MockTrainingState => ({
           notes: null,
         },
         {
+          id: "routine-item-aperturas",
+          exerciseId: "exercise-aperturas",
+          position: 3,
+          targetSets: 3,
+          repMin: 10,
+          repMax: 12,
+          targetRir: 2,
+          restSeconds: 75,
+          notes: null,
+        },
+        {
+          id: "routine-item-triceps",
+          exerciseId: "exercise-triceps-polea",
+          position: 4,
+          targetSets: 3,
+          repMin: 10,
+          repMax: 15,
+          targetRir: 2,
+          restSeconds: 60,
+          notes: null,
+        },
+        {
           id: "routine-item-lateral",
           exerciseId: "exercise-lateral-custom",
-          position: 3,
+          position: 5,
           targetSets: 3,
           repMin: 12,
           repMax: 15,
@@ -159,8 +198,81 @@ const createInitialState = (): MockTrainingState => ({
         },
       ],
     },
-  ],
-});
+  ];
+  const pushRoutine = routines.find((routine) => routine.id === "routine-push-a")!;
+  const exerciseById = new Map(exercises.map((exercise) => [exercise.id, exercise]));
+  const seedWorkoutId = "workout-history-push-a";
+  const seedExercises: WorkoutExercise[] = pushRoutine.items.map((item) => {
+    const exercise = exerciseById.get(item.exerciseId)!;
+    return {
+      id: `workout-exercise-history-${item.position}`,
+      workoutId: seedWorkoutId,
+      exerciseId: exercise.id,
+      routineExerciseId: item.id,
+      exerciseNameSnapshot: exercise.name,
+      primaryMuscleIdSnapshot: exercise.primaryMuscleId,
+      position: item.position,
+      targetSetsSnapshot: item.targetSets,
+      repMinSnapshot: item.repMin,
+      repMaxSnapshot: item.repMax,
+      targetRirSnapshot: item.targetRir,
+      restSecondsSnapshot: item.restSeconds,
+      notesSnapshot: item.notes,
+    };
+  });
+  const seedWeights = [75, 42.5, 12, 25, 10];
+  const seedSets: CompletedSet[] = seedExercises.map((exercise, index) => ({
+    id: `set-history-${index + 1}`,
+    workoutExerciseId: exercise.id,
+    setNumber: 1,
+    setType: "working",
+    weightKg: seedWeights[index] ?? 10,
+    reps: 10,
+    rir: 2,
+    completedAt: `2026-09-08T18:${String(10 + index).padStart(2, "0")}:00.000Z`,
+  }));
+
+  return {
+    version: 2,
+    exercises,
+    routines,
+    workouts: [{
+      id: seedWorkoutId,
+      userId: DEMO_USER_ID,
+      routineId: pushRoutine.id,
+      routineNameSnapshot: pushRoutine.name,
+      startedAt: "2026-09-08T18:00:00.000Z",
+      finishedAt: "2026-09-08T18:45:00.000Z",
+      status: "completed",
+      notes: null,
+      exercises: seedExercises,
+      sets: seedSets,
+    }],
+  };
+};
+
+const migrateV1State = (parsed: { exercises: Exercise[]; routines: Routine[] }): MockTrainingState => {
+  const initialState = createInitialState();
+  const exercises = [...parsed.exercises];
+
+  initialState.exercises.forEach((exercise) => {
+    if (!exercises.some((candidate) => candidate.id === exercise.id)) exercises.push(exercise);
+  });
+
+  const routines = parsed.routines.map((routine) => {
+    if (routine.id !== "routine-push-a") return routine;
+    const initialRoutine = initialState.routines.find((candidate) => candidate.id === routine.id);
+    const missingItems = initialRoutine?.items.filter((item) => !routine.items.some((candidate) => candidate.exerciseId === item.exerciseId)) ?? [];
+    if (!missingItems.length) return routine;
+    const nextPosition = Math.max(0, ...routine.items.map((item) => item.position)) + 1;
+    return {
+      ...routine,
+      items: [...routine.items, ...missingItems.map((item, index) => ({ ...item, position: nextPosition + index }))],
+    };
+  });
+
+  return { version: 2, exercises, routines, workouts: initialState.workouts };
+};
 
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
@@ -172,9 +284,12 @@ const readState = (): MockTrainingState => {
   if (!stored) return createInitialState();
 
   try {
-    const parsed = JSON.parse(stored) as MockTrainingState;
+    const parsed = JSON.parse(stored) as { version?: number; exercises?: Exercise[]; routines?: Routine[]; workouts?: Workout[] };
+    if (parsed.version === 2 && Array.isArray(parsed.exercises) && Array.isArray(parsed.routines) && Array.isArray(parsed.workouts)) {
+      return parsed as MockTrainingState;
+    }
     if (parsed.version === 1 && Array.isArray(parsed.exercises) && Array.isArray(parsed.routines)) {
-      return parsed;
+      return migrateV1State({ exercises: parsed.exercises, routines: parsed.routines });
     }
   } catch {
     // Un estado simulado dañado vuelve de forma segura a los fixtures conocidos.
@@ -235,7 +350,43 @@ const nextCopyName = (state: MockTrainingState, originalName: string) => {
   return candidate;
 };
 
-export const createMockTrainingRepositories = (): TrainingRepositories => {
+const assertSetInput = (input: SetInput) => {
+  const result = setInputSchema.safeParse(input);
+  if (!result.success) {
+    throw new RepositoryError("VALIDATION_ERROR", result.error.issues[0]?.message ?? "Serie inválida.");
+  }
+  return result.data;
+};
+
+const getActiveWorkout = (state: MockTrainingState, workoutId?: string) => {
+  const workout = state.workouts.find((candidate) =>
+    candidate.status === "active" && (!workoutId || candidate.id === workoutId),
+  );
+  if (!workout) throw new RepositoryError("NOT_FOUND", "El workout activo no está disponible.");
+  return workout;
+};
+
+const normalizeExercisePositions = (workout: Workout) => {
+  workout.exercises = workout.exercises.map((exercise, index) => ({ ...exercise, position: index + 1 }));
+};
+
+const normalizeSetPositions = (workout: Workout, workoutExerciseId: string) => {
+  const sets = workout.sets
+    .filter((set) => set.workoutExerciseId === workoutExerciseId)
+    .sort((a, b) => a.setNumber - b.setNumber);
+  sets.forEach((set, index) => { set.setNumber = index + 1; });
+};
+
+export const createMockTrainingRepositories = (options: MockTrainingOptions = {}): TrainingRepositories => {
+  const failureCounts = { ...options.failures };
+  const beforeOperation = async (operation: MockOperation) => {
+    if (options.latencyMs) await new Promise((resolve) => window.setTimeout(resolve, options.latencyMs));
+    if ((failureCounts[operation] ?? 0) > 0) {
+      failureCounts[operation] = (failureCounts[operation] ?? 1) - 1;
+      throw new RepositoryError("NETWORK_ERROR", "No hubo respuesta confiable del servicio simulado.");
+    }
+  };
+
   const exercises: TrainingRepositories["exercises"] = {
     async list(filters: ExerciseFilters) {
       const state = readState();
@@ -430,5 +581,231 @@ export const createMockTrainingRepositories = (): TrainingRepositories => {
     },
   };
 
-  return { exercises, routines };
+  const workouts: TrainingRepositories["workouts"] = {
+    async getActive() {
+      const active = readState().workouts.find((workout) => workout.userId === DEMO_USER_ID && workout.status === "active");
+      return active ? clone(active) : null;
+    },
+
+    async startFromRoutine(routineId: string) {
+      await beforeOperation("startFromRoutine");
+      const state = readState();
+      if (state.workouts.some((workout) => workout.userId === DEMO_USER_ID && workout.status === "active")) {
+        throw new RepositoryError("ACTIVE_WORKOUT_EXISTS", "Ya tienes un workout activo.");
+      }
+      const routine = state.routines.find((candidate) => candidate.id === routineId && !candidate.isArchived);
+      if (!routine) throw new RepositoryError("NOT_FOUND", "La rutina no está disponible para comenzar.");
+      if (routine.items.length === 0) throw new RepositoryError("VALIDATION_ERROR", "Añade al menos un ejercicio antes de comenzar.");
+
+      const workoutId = createId("workout");
+      const exerciseById = new Map(state.exercises.map((exercise) => [exercise.id, exercise]));
+      const workoutExercises = routine.items.map<WorkoutExercise>((item, index) => {
+        const exercise = exerciseById.get(item.exerciseId);
+        if (!exercise) throw new RepositoryError("NOT_FOUND", "Uno de los ejercicios de la rutina ya no está disponible.");
+        return {
+          id: createId("workout-exercise"),
+          workoutId,
+          exerciseId: exercise.id,
+          routineExerciseId: item.id,
+          exerciseNameSnapshot: exercise.name,
+          primaryMuscleIdSnapshot: exercise.primaryMuscleId,
+          position: index + 1,
+          targetSetsSnapshot: item.targetSets,
+          repMinSnapshot: item.repMin,
+          repMaxSnapshot: item.repMax,
+          targetRirSnapshot: item.targetRir,
+          restSecondsSnapshot: item.restSeconds,
+          notesSnapshot: item.notes,
+        };
+      });
+      const workout: Workout = {
+        id: workoutId,
+        userId: DEMO_USER_ID,
+        routineId: routine.id,
+        routineNameSnapshot: routine.name,
+        startedAt: new Date().toISOString(),
+        finishedAt: null,
+        status: "active",
+        notes: null,
+        exercises: workoutExercises,
+        sets: [],
+      };
+      state.workouts.push(workout);
+      writeState(state);
+      return clone(workout);
+    },
+
+    async addExercise(workoutId: string, exerciseId: string) {
+      const state = readState();
+      const workout = getActiveWorkout(state, workoutId);
+      if (workout.exercises.some((exercise) => exercise.exerciseId === exerciseId)) {
+        throw new RepositoryError("CONFLICT", "Este ejercicio ya está en la sesión.");
+      }
+      const exercise = state.exercises.find((candidate) => candidate.id === exerciseId && !candidate.isArchived);
+      if (!exercise) throw new RepositoryError("NOT_FOUND", "El ejercicio no está disponible para la sesión.");
+      workout.exercises.push({
+        id: createId("workout-exercise"),
+        workoutId,
+        exerciseId: exercise.id,
+        routineExerciseId: null,
+        exerciseNameSnapshot: exercise.name,
+        primaryMuscleIdSnapshot: exercise.primaryMuscleId,
+        position: workout.exercises.length + 1,
+        targetSetsSnapshot: 1,
+        repMinSnapshot: null,
+        repMaxSnapshot: null,
+        targetRirSnapshot: null,
+        restSecondsSnapshot: 60,
+        notesSnapshot: null,
+      });
+      writeState(state);
+      return clone(workout);
+    },
+
+    async removeExercise(workoutId: string, workoutExerciseId: string) {
+      const state = readState();
+      const workout = getActiveWorkout(state, workoutId);
+      const index = workout.exercises.findIndex((exercise) => exercise.id === workoutExerciseId);
+      if (index < 0) throw new RepositoryError("NOT_FOUND", "El ejercicio no está en la sesión.");
+      workout.exercises.splice(index, 1);
+      workout.sets = workout.sets.filter((set) => set.workoutExerciseId !== workoutExerciseId);
+      normalizeExercisePositions(workout);
+      writeState(state);
+      return clone(workout);
+    },
+
+    async reorderExercises(workoutId: string, orderedExerciseIds: string[]) {
+      const state = readState();
+      const workout = getActiveWorkout(state, workoutId);
+      if (
+        orderedExerciseIds.length !== workout.exercises.length ||
+        new Set(orderedExerciseIds).size !== orderedExerciseIds.length ||
+        orderedExerciseIds.some((id) => !workout.exercises.some((exercise) => exercise.id === id))
+      ) {
+        throw new RepositoryError("VALIDATION_ERROR", "El nuevo orden no contiene los ejercicios actuales.");
+      }
+      workout.exercises = orderedExerciseIds.map((id) => workout.exercises.find((exercise) => exercise.id === id)!);
+      normalizeExercisePositions(workout);
+      writeState(state);
+      return clone(workout);
+    },
+
+    async complete(workoutId: string) {
+      const state = readState();
+      const workout = getActiveWorkout(state, workoutId);
+      if (workout.sets.length === 0) throw new RepositoryError("VALIDATION_ERROR", "Confirma al menos una serie antes de finalizar.");
+      workout.status = "completed";
+      workout.finishedAt = new Date().toISOString();
+      writeState(state);
+      return clone(workout);
+    },
+
+    async cancel(workoutId: string) {
+      const state = readState();
+      const workout = getActiveWorkout(state, workoutId);
+      workout.status = "cancelled";
+      workout.finishedAt = new Date().toISOString();
+      writeState(state);
+      return clone(workout);
+    },
+  };
+
+  const sets: TrainingRepositories["sets"] = {
+    async create(workoutId: string, workoutExerciseId: string, rawInput: SetInput) {
+      await beforeOperation("createSet");
+      const input = assertSetInput(rawInput);
+      const state = readState();
+      const workout = getActiveWorkout(state, workoutId);
+      if (!workout.exercises.some((exercise) => exercise.id === workoutExerciseId)) {
+        throw new RepositoryError("NOT_FOUND", "El ejercicio no está en la sesión.");
+      }
+      const existingById = input.id ? workout.sets.find((set) => set.id === input.id) : undefined;
+      if (existingById) return clone(existingById);
+      if (workout.sets.some((set) => set.workoutExerciseId === workoutExerciseId && set.setNumber === input.setNumber)) {
+        throw new RepositoryError("CONFLICT", "La serie ya fue confirmada.");
+      }
+      const completedSet: CompletedSet = {
+        id: input.id ?? createId("set"),
+        workoutExerciseId,
+        setNumber: input.setNumber,
+        setType: input.setType,
+        weightKg: input.weightKg,
+        reps: input.reps,
+        rir: input.rir,
+        completedAt: new Date().toISOString(),
+      };
+      workout.sets.push(completedSet);
+      writeState(state);
+      return clone(completedSet);
+    },
+
+    async update(workoutId: string, setId: string, rawInput: SetInput) {
+      const input = assertSetInput(rawInput);
+      const state = readState();
+      const workout = getActiveWorkout(state, workoutId);
+      const set = workout.sets.find((candidate) => candidate.id === setId);
+      if (!set) throw new RepositoryError("NOT_FOUND", "La serie no está disponible.");
+      if (workout.sets.some((candidate) => candidate.id !== setId && candidate.workoutExerciseId === set.workoutExerciseId && candidate.setNumber === input.setNumber)) {
+        throw new RepositoryError("CONFLICT", "Ya existe otra serie con ese número.");
+      }
+      Object.assign(set, {
+        setNumber: input.setNumber,
+        setType: input.setType,
+        weightKg: input.weightKg,
+        reps: input.reps,
+        rir: input.rir,
+      });
+      writeState(state);
+      return clone(set);
+    },
+
+    async remove(workoutId: string, setId: string) {
+      const state = readState();
+      const workout = getActiveWorkout(state, workoutId);
+      const index = workout.sets.findIndex((set) => set.id === setId);
+      if (index < 0) throw new RepositoryError("NOT_FOUND", "La serie no está disponible.");
+      const workoutExerciseId = workout.sets[index]!.workoutExerciseId;
+      workout.sets.splice(index, 1);
+      normalizeSetPositions(workout, workoutExerciseId);
+      writeState(state);
+    },
+
+    async reorder(workoutId: string, workoutExerciseId: string, orderedSetIds: string[]) {
+      const state = readState();
+      const workout = getActiveWorkout(state, workoutId);
+      const current = workout.sets.filter((set) => set.workoutExerciseId === workoutExerciseId);
+      if (
+        orderedSetIds.length !== current.length ||
+        new Set(orderedSetIds).size !== orderedSetIds.length ||
+        orderedSetIds.some((id) => !current.some((set) => set.id === id))
+      ) {
+        throw new RepositoryError("VALIDATION_ERROR", "El nuevo orden no contiene las series actuales.");
+      }
+      const reordered = orderedSetIds.map((id) => current.find((set) => set.id === id)!);
+      reordered.forEach((set, index) => { set.setNumber = index + 1; });
+      workout.sets = workout.sets.filter((set) => set.workoutExerciseId !== workoutExerciseId).concat(reordered);
+      writeState(state);
+      return clone(reordered);
+    },
+  };
+
+  const history: TrainingRepositories["history"] = {
+    async getPreviousExerciseSession(exerciseId: string, before = new Date().toISOString()) {
+      const state = readState();
+      const previous = state.workouts
+        .filter((workout) => workout.userId === DEMO_USER_ID && workout.status === "completed" && workout.finishedAt !== null && workout.finishedAt < before)
+        .filter((workout) => workout.exercises.some((exercise) => exercise.exerciseId === exerciseId))
+        .sort((a, b) => (b.finishedAt ?? "").localeCompare(a.finishedAt ?? ""))[0];
+      if (!previous) return null;
+      const exerciseIds = new Set(previous.exercises.filter((exercise) => exercise.exerciseId === exerciseId).map((exercise) => exercise.id));
+      const result: PreviousExerciseSession = {
+        workoutId: previous.id,
+        completedAt: previous.finishedAt!,
+        sets: previous.sets.filter((set) => exerciseIds.has(set.workoutExerciseId) && set.setType === "working"),
+      };
+      return clone(result);
+    },
+  };
+
+  return { exercises, routines, workouts, sets, history };
 };
