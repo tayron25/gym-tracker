@@ -378,7 +378,7 @@
 </head>
 <body>
   <header class="prototype-toolbar">
-    <div><strong>SPR-02 / Kinetic Ledger</strong><p>Prototipo de alta fidelidad · prueba visual, no frontend de producción</p></div>
+    <div><strong>SPR-02 / Midnight Training Console</strong><p>Prototipo de alta fidelidad · prueba visual, no frontend de producción</p></div>
     <div class="prototype-controls" aria-label="Controles del prototipo">
       <span>Viewport</span>
       <button type="button" data-preview="360" aria-pressed="false">360</button>
@@ -568,7 +568,15 @@
         `<div class="grid-2"><section class="ledger-card"><p class="card-kicker">Perfil</p><h3>Tayron</h3><div class="form-grid" style="margin-top:18px"><label>Nombre visible<input type="text" value="Tayron"></label><label>Unidad de presentación<select><option>kg</option><option>lb</option></select></label><label>Zona horaria<select><option>America/La_Paz</option><option>America/New_York</option></select></label><label>Semana comienza<select><option>Lunes</option><option>Domingo</option></select></label></div></section><section class="ledger-card soft"><p class="card-kicker">Tema</p><h3>Claro de tiza</h3><p class="muted">La versión dim gym mantiene los mismos significados de estado y no cambia los datos.</p><button type="button" data-action="theme">Cambiar tema</button><div class="card-footer"><span class="muted">Preferencia local en el prototipo</span></div></section></div><section class="ledger-card"><div class="between"><div><p class="card-kicker">Cuenta</p><h3>Privada por defecto</h3><p class="muted">Tus rutinas, workouts y notas solo son visibles para ti.</p></div><button type="button" class="quiet" data-view="login">Cerrar sesión</button></div></section>`
       ),
 
-      login: () => `<div class="page"><div class="auth-wrap"><section class="auth-card"><p class="eyebrow">Gym Tracker · Acceso privado</p><h2>Vuelve a tu ritmo.</h2><p class="muted">Consulta la última vez y registra la siguiente serie sin perder contexto.</p><div class="form-grid"><label class="full">Correo<input type="email" value="tayron@example.com"></label><label class="full">Contraseña<input type="password" value="password"></label></div><button type="button" class="oxide" style="width:100%" data-view="dashboard">Iniciar sesión</button><div class="auth-note">Tu sesión se restaura al recargar. Nunca exponemos claves privilegiadas en el navegador.</div><div class="between"><button type="button" class="link-button">Crear cuenta</button><button type="button" class="link-button">Recuperar contraseña</button></div></section></div></div>`
+      login: () => `<div class="page"><div class="auth-wrap"><section class="auth-card"><p class="eyebrow">Gym Tracker · Acceso privado</p><h2>Vuelve a tu ritmo.</h2><p class="muted">Consulta la última vez y registra la siguiente serie sin perder contexto.</p><div class="form-grid"><label class="full">Correo<input type="email" value="tayron@example.com"></label><label class="full">Contraseña<input type="password" value="password"></label></div><button type="button" class="oxide" style="width:100%" data-view="dashboard">Iniciar sesión</button><div class="auth-note">Tu sesión se restaura al recargar. Nunca exponemos claves privilegiadas en el navegador.</div><div class="between"><button type="button" class="link-button" data-view="register">Crear cuenta</button><button type="button" class="link-button" data-view="forgot-password">Recuperar contraseña</button></div></section></div></div>`,
+
+      register: () => `<div class="page"><div class="auth-wrap"><section class="auth-card"><p class="eyebrow">Primer paso</p><h2>Crea tu cuenta.</h2><p class="muted">Tus rutinas y workouts quedan preparados para vivir en un espacio privado.</p><div class="form-grid"><label class="full">Correo<input type="email" placeholder="tu@correo.com"></label><label class="full">Contraseña<input type="password" placeholder="Mínimo 8 caracteres"></label><label class="full">Repite la contraseña<input type="password"></label></div><button type="button" class="oxide" style="width:100%" data-view="email-pending">Crear cuenta</button><div class="auth-note">La confirmación de correo es obligatoria antes de usar datos privados.</div><div class="between"><span class="muted">¿Ya tienes cuenta?</span><button type="button" class="link-button" data-view="login">Iniciar sesión</button></div></section></div></div>`,
+
+      'email-pending': () => `<div class="page"><div class="auth-wrap"><section class="auth-card"><p class="eyebrow">Cuenta creada</p><h2>Confirma tu correo.</h2><p class="muted">Enviamos un enlace de confirmación a tu dirección. Cuando lo confirmes, podrás iniciar sesión.</p><div class="auth-note"><strong>Estado pendiente de confirmación</strong><span>Revisa tu bandeja de entrada para continuar.</span><span>Este prototipo simula el correo; no envía mensajes reales.</span></div><button type="button" class="oxide" style="width:100%" data-view="login">Volver al acceso</button></section></div></div>`,
+
+      'forgot-password': () => `<div class="page"><div class="auth-wrap"><section class="auth-card"><p class="eyebrow">Recuperación segura</p><h2>Vuelve a entrar.</h2><p class="muted">Indica tu correo y te diremos cómo continuar sin revelar si existe una cuenta.</p><div class="form-grid"><label class="full">Correo<input type="email" placeholder="tu@correo.com"></label></div><button type="button" class="oxide" style="width:100%" data-view="reset-password">Enviar instrucciones</button><div class="auth-note">Si la dirección está registrada, recibirás instrucciones para recuperar tu cuenta.</div><div class="between"><button type="button" class="link-button" data-view="login">Volver al acceso</button><button type="button" class="link-button" data-view="reset-password">Abrir enlace simulado</button></div></section></div></div>`,
+
+      'reset-password': () => `<div class="page"><div class="auth-wrap"><section class="auth-card"><p class="eyebrow">Nueva contraseña</p><h2>Cambia tu acceso.</h2><p class="muted">Elige una contraseña nueva para volver a tus entrenamientos.</p><div class="form-grid"><label class="full">Nueva contraseña<input type="password" placeholder="Mínimo 8 caracteres"></label><label class="full">Repite la contraseña<input type="password"></label></div><button type="button" class="oxide" style="width:100%" data-view="login">Guardar nueva contraseña</button><div class="auth-note">Si el enlace venció, solicita uno nuevo desde Recuperar contraseña.</div><div class="between"><button type="button" class="link-button" data-view="forgot-password">Solicitar otro enlace</button><button type="button" class="link-button" data-view="login">Volver al acceso</button></div></section></div></div>`
     };
 
     function setCurrentView(view) {
@@ -598,7 +606,10 @@
     function render(view) {
       const selected = pages[view] ? view : 'dashboard';
       page.innerHTML = pages[selected]();
-      routeLabel.textContent = selected === 'login' ? '/login' : `/app/${selected === 'dashboard' ? '' : selected}`;
+      const publicAuthViews = ['login', 'register', 'email-pending', 'forgot-password', 'reset-password'];
+      routeLabel.textContent = publicAuthViews.includes(selected)
+        ? `/${selected === 'email-pending' ? 'register/confirmation-pending' : selected}`
+        : `/app/${selected === 'dashboard' ? '' : selected}`;
       setCurrentView(selected);
       bindViewActions();
       window.location.hash = selected;

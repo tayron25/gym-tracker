@@ -4,7 +4,7 @@
 > Propietario del producto: Tayron Cuéllar  
 > Versión: 1.0 línea base aprobada  
 > Fecha: 12 de septiembre de 2026  
-> Estado: Puerta 0 aprobada; Sprint 1 todavía no iniciado
+> Estado: Puerta 0, CP-01B y CP-02A aprobadas; SPR-02 y SPR-03 terminados
 
 ---
 
@@ -218,6 +218,7 @@ Para personas que entrenan fuerza y quieren progresar con datos, Gym Tracker es 
 | Entrenamiento cardiovascular por tiempo o distancia | FUERA V1 | La V1 usa peso y repeticiones. |
 | Fotos, medidas y peso corporal | FUERA V1 | No se requieren para validar el ciclo de entrenamiento. |
 | Recomendaciones generadas por IA | FUERA V1 | Requieren datos suficientes y evaluación adicional. |
+| Eliminación de cuenta y datos desde la interfaz | FUERA V1 | Decisión explícita del propietario para mantener fuera este flujo en V1. |
 | Wearables | FUTURO | Depende de APIs externas y nuevos tipos de dato. |
 | Entrenadores con clientes | FUTURO | Introduce roles, compartición y autorización compleja. |
 
@@ -394,7 +395,7 @@ Para personas que entrenan fuerza y quieren progresar con datos, Gym Tracker es 
 | RF-003 | Iniciar y cerrar sesión, restaurando sesión válida al recargar. | Must |
 | RF-004 | Solicitar restablecimiento de contraseña. | Must |
 | RF-005 | Editar nombre, unidad, zona horaria y comienzo de semana. | Must |
-| RF-006 | Eliminar cuenta y datos mediante confirmación reforzada. | Should |
+| RF-006 | Eliminar cuenta y datos mediante confirmación reforzada. | FUERA V1 |
 
 ### 7.2 Ejercicios
 
@@ -1767,7 +1768,7 @@ La V1 no envía telemetría de producto a terceros. Las métricas de uso requier
 
 | Requisitos | Historias | Pruebas | Sprint |
 |---|---|---|---|
-| RF-001 a RF-006 | HU-001 a HU-004 | PRU-AUTH-01/02, E2E-001 | 3, 7, 10 |
+| RF-001 a RF-005 | HU-001 a HU-004 | PRU-AUTH-01/02, E2E-001 | 3, 7, 10 |
 | RF-010 a RF-014 | HU-010 a HU-012 | componente, RLS, E2E selectivo | 4, 8 |
 | RF-020 a RF-024 | HU-020 a HU-022 | PRU-DB-05/08, E2E-020 | 4, 8 |
 | RF-030 a RF-041 | HU-030 a HU-035, HU-050 | PRU-DB-01/06/07, E2E-030 a 035 | 5, 9, 10 |
@@ -1812,6 +1813,7 @@ Todo cambio incluye:
 | Cambio | Estado |
 |---|---|
 | CR-000 Crear esta línea base integral | Aprobado el 2026-09-12 |
+| CR-001 Excluir eliminación de cuenta y datos de V1; actualizar RF-006 y su trazabilidad | Aprobado por Tayron el 2026-09-12 |
 
 ---
 
@@ -1837,7 +1839,7 @@ Todo cambio incluye:
 - [x] Tayron aprueba el problema, visión y alcance V1.
 - [x] Tayron aprueba explícitamente los elementos FUERA V1.
 - [x] Tayron aprueba todas las reglas de negocio de la sección 6.
-- [x] Tayron aprueba RF y RNF.
+- [x] Tayron aprueba RF y RNF dentro del alcance V1; RF-006 queda FUERA V1.
 - [x] Tayron aprueba las historias y sus criterios.
 - [x] Tayron aprueba el modelo de nueve tablas más auth.users.
 - [x] Tayron aprueba snapshots, kg canónico y estadísticas derivadas.
@@ -1847,16 +1849,18 @@ Todo cambio incluye:
 - [x] Tayron aprueba los 14 sprints SPR-00 a SPR-13.
 - [x] Tayron aprueba riesgos y alcance operativo.
 - [x] Tayron autoriza convertir el documento a la línea base 1.0.
-- [ ] Inicio de SPR-01: pendiente de una orden de inicio independiente.
+- [x] SPR-02 terminado y CP-01B cerrada el 2026-09-12.
+- [x] Inicio de SPR-03 autorizado por Tayron el 2026-09-12.
+- [x] SPR-03 terminado y CP-02A cerrada el 2026-09-12; la aplicación fue probada desde un celular en la misma red Wi‑Fi usando la URL de red de Vite.
 
-**Registro de aceptación:** el 12 de septiembre de 2026, Tayron indicó que leyó el documento, consideró excelente la propuesta y solicitó crear la versión 1.0. Esta aprobación cierra CP-00. No inicia automáticamente el Sprint 1 ni autoriza cambios de código.
+**Registro de aceptación:** el 12 de septiembre de 2026, Tayron indicó que leyó el documento, consideró excelente la propuesta y solicitó crear la versión 1.0. Esta aprobación cierra CP-00. Posteriormente autorizó SPR-03, con eliminación de cuenta fuera de V1 y autenticación simulada limitada a una marca en `sessionStorage`. Tras probar el acceso desde un celular conectado a la misma red Wi‑Fi, Tayron aprobó el incremento y cerró CP-02A.
 
 ---
 
 ## 27. Plantilla de encargo para Codex
 
 ~~~text
-Trabaja únicamente en [SPR-ID y nombre] del archivo docs/engineering-spec.md.
+Trabaja únicamente en [SPR-ID y nombre] del archivo docs/gym-tracker-engineering-spec-v1.0.md.
 
 Objetivo:
 [copiar objetivo]
@@ -1968,4 +1972,4 @@ Enlaces de referencia:
 | Versión | Fecha | Estado | Cambio |
 |---|---|---|---|
 | 0.9 | 2026-09-12 | Candidata | Primera especificación integral, backlog, arquitectura, datos, pruebas y sprints. |
-| 1.0 | 2026-09-12 | Aprobada | Línea base validada por Tayron; CP-00 cerrada y Sprint 1 pendiente de inicio. |
+| 1.0 | 2026-09-12 | Aprobada | Línea base validada por Tayron; SPR-02 y SPR-03 terminados, RF-006 fuera de V1 y CP-02A cerrada tras validación en celular. |

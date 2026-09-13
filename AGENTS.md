@@ -15,11 +15,11 @@ Este archivo conserva el contexto operativo del proyecto para futuras sesiones d
 
 Fecha de referencia: 2026-09-12.
 
-- El espacio de trabajo contiene la especificación, este `AGENTS.md`, la guía local `docs/ux/DESIGN SKILL.md` y los artefactos UX de `docs/ux/`.
-- No existe todavía `src/`, `public/`, `supabase/`, `e2e/`, `package.json`, `README.md`, `.env.example`, configuración de CI ni pruebas.
-- Existe un repositorio Git en la rama `main`; al último inventario, `docs/ux/DESIGN SKILL.md` aparece como archivo no rastreado proporcionado por el usuario y no debe eliminarse ni modificarse sin autorización.
-- No hay aplicación ejecutable que probar ni implementación que revisar.
-- La estructura de carpetas mostrada en la especificación es una estructura objetivo, no un inventario actual.
+- El espacio de trabajo contiene la especificación, este `AGENTS.md`, la guía local `docs/ux/DESIGN SKILL.md`, los artefactos UX de `docs/ux/` y el frontend inicial de SPR-03.
+- Existe `src/`, `package.json`, `package-lock.json`, `.github/workflows/ci.yml`, `vite.config.ts`, configuración TypeScript y `README.md`; todavía no existen `public/`, `supabase/`, `e2e/` ni `.env.example`.
+- Existe un repositorio Git en la rama `main`; `docs/ux/DESIGN SKILL.md` está rastreado y no debe eliminarse ni modificarse sin autorización.
+- El frontend actual usa autenticación simulada y un repositorio mock; no importa Supabase ni persiste datos privados en el navegador.
+- La estructura de carpetas mostrada en la especificación sigue siendo una estructura objetivo; solo se implementó el shell y la autenticación de SPR-03.
 
 ## Puertas y fase actual
 
@@ -32,9 +32,9 @@ Fecha de referencia: 2026-09-12.
 - La dirección de SPR-02 fue revisada según la referencia visual del propietario: tema azul-negro, cian de acción, tarjetas compactas y tipografía menor en mobile.
 - El `SetRow` mobile fue corregido: campos con ancho mínimo, confirmación compacta de 48 px con etiqueta accesible, estados `✓`/`↻`/`+` y navegación inferior con safe area.
 - `CP-01B` está aprobada por el propietario; se corrigieron los problemas responsive del `SetRow` mobile.
-- `SPR-03` todavía no ha comenzado y requiere una orden independiente.
+- `SPR-03` está terminado dentro del alcance aprobado; CP-02A fue cerrada y aprobada por el propietario el 2026-09-12 tras probar el acceso desde un celular en la misma red Wi‑Fi.
 - La especificación exige una orden independiente para iniciar cada sprint; la aprobación de uno no autoriza automáticamente el siguiente.
-- No iniciar frontend de producción, backend, migraciones, dependencias, prototipos adicionales o configuración de despliegue sin una solicitud explícita que autorice ese alcance.
+- No iniciar backend, Supabase, migraciones, funcionalidades de sprints posteriores, prototipos adicionales o configuración de despliegue sin una solicitud explícita que autorice ese alcance.
 - Trabajar un sprint a la vez y no adelantar trabajo de sprints posteriores.
 
 ## Producto V1 resumido
@@ -52,6 +52,7 @@ Fuera de V1: offline y sincronización, nutrición, red social, pagos, cardio, f
 - Vitest + React Testing Library, Playwright y pgTAP mediante Supabase CLI.
 - Coste inicial objetivo: 0 USD/mes dentro de los límites gratuitos.
 - Sin modo offline.
+- Sin eliminación de cuenta en V1.
 - Interfaz mobile-first y usable con una mano.
 - Peso y repeticiones son obligatorios para completar una serie; RIR es opcional.
 - Rutina editable y workout histórico son entidades distintas; editar una rutina nunca reescribe el historial.
@@ -84,6 +85,7 @@ La UI no debe acceder directamente a Supabase ni a SQL. Los puertos de repositor
 - Epley solo es elegible para 1–15 repeticiones y peso mayor que cero.
 - Un doble toque o reintento no puede duplicar una serie: UUID de cliente, PK y bloqueo temporal.
 - Un fallo remoto nunca debe mostrarse como guardado; conservar entradas y ofrecer reintento.
+- En SPR-03, la sesión simulada se representa únicamente con la marca `gym-tracker.mock-session` en `sessionStorage`.
 
 ## Flujo de trabajo obligatorio para Codex
 
