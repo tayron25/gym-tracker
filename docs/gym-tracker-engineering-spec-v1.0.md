@@ -4,7 +4,7 @@
 > Propietario del producto: Tayron Cuéllar  
 > Versión: 1.0 línea base aprobada  
 > Fecha: 12 de septiembre de 2026  
-> Estado: Puerta 0, CP-01B, CP-02A, CP-02B y CP-02C aprobadas; SPR-02, SPR-03, SPR-04 y SPR-05 terminados
+> Estado: Puerta 0, CP-01B, CP-02A, CP-02B, CP-02C y CP-02D aprobadas; SPR-02, SPR-03, SPR-04, SPR-05 y SPR-06 terminados
 
 ---
 
@@ -1858,8 +1858,10 @@ Todo cambio incluye:
 - [x] SPR-04 terminado y CP-02B cerrado por aprobación de Tayron el 2026-09-12, con evidencia automatizada de flujo mock, persistencia de sesión, responsive y teclado.
 - [x] Inicio de SPR-05 autorizado por Tayron el 2026-09-12.
 - [x] SPR-05 terminado y CP-02C cerrado por aprobación de Tayron el 2026-09-12, con evidencia automatizada del flujo de cinco ejercicios, errores/reintentos, doble toque, teclado y resumen provisional.
+- [x] Inicio de SPR-06 autorizado por Tayron el 2026-09-12.
+- [x] SPR-06 terminado y CP-02D cerrada por aprobación de Tayron el 2026-09-13, con evidencia automatizada de historial, detalle histórico, notas, eliminación mock, progreso, responsive y captura reproducible.
 
-**Registro de aceptación:** el 12 de septiembre de 2026, Tayron indicó que leyó el documento, consideró excelente la propuesta y solicitó crear la versión 1.0. Esta aprobación cierra CP-00. Posteriormente autorizó SPR-03, con eliminación de cuenta fuera de V1 y autenticación simulada limitada a una marca en `sessionStorage`. Tras probar el acceso desde un celular conectado a la misma red Wi‑Fi, Tayron aprobó el incremento y cerró CP-02A. En la misma fecha aprobó el incremento completo de SPR-04 y cerró CP-02B; esa aprobación no autorizaba iniciar SPR-05 en ese momento. Posteriormente autorizó explícitamente iniciar SPR-05 y aprobó el incremento completo, cerrando CP-02C.
+**Registro de aceptación:** el 12 de septiembre de 2026, Tayron indicó que leyó el documento, consideró excelente la propuesta y solicitó crear la versión 1.0. Esta aprobación cierra CP-00. Posteriormente autorizó SPR-03, con eliminación de cuenta fuera de V1 y autenticación simulada limitada a una marca en `sessionStorage`. Tras probar el acceso desde un celular conectado a la misma red Wi‑Fi, Tayron aprobó el incremento y cerró CP-02A. En la misma fecha aprobó el incremento completo de SPR-04 y cerró CP-02B; esa aprobación no autorizaba iniciar SPR-05 en ese momento. Posteriormente autorizó explícitamente iniciar SPR-05 y aprobó el incremento completo, cerrando CP-02C. Finalmente autorizó SPR-06 y aprobó el incremento completo con su evidencia responsive reproducible, cerrando CP-02D el 13 de septiembre de 2026.
 
 ---
 

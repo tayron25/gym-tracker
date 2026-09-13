@@ -1,6 +1,9 @@
-import { ArrowLeft, Archive, RotateCcw } from "lucide-react";
+import { ArrowLeft, ArrowRight, Archive, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../../app/providers/AuthProvider";
+import { useExerciseHistory } from "../../application/workouts/history-queries";
+import { useExercisePRs } from "../../application/workouts/analytics-queries";
 import { useExercise, useExerciseMutations, useMuscleGroups } from "../../application/exercises/exercise-queries";
 import { RepositoryError } from "../../application/shared/repository-error";
 import { Button } from "../../components/ui/Button";
@@ -9,12 +12,16 @@ import { Dialog } from "../../components/ui/Dialog";
 import { StatusBanner } from "../../components/ui/StatusBanner";
 import { equipmentLabels, movementLabels, type ExerciseInput } from "../../domain/types/exercise";
 import { ExerciseForm } from "./ExerciseForm";
+import { formatShortDateInTimeZone } from "../../domain/metrics/date-metrics";
 
 export function ExerciseDetailPage() {
   const { id = "" } = useParams();
+  const { profile } = useAuth();
   const navigate = useNavigate();
   const query = useExercise(id);
   const muscleQuery = useMuscleGroups();
+  const historyQuery = useExerciseHistory(id);
+  const prsQuery = useExercisePRs(id);
   const mutations = useExerciseMutations();
   const [editing, setEditing] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
@@ -48,7 +55,7 @@ export function ExerciseDetailPage() {
     <main className="page-content page-narrow">
       <Link className="back-link" to="/app/exercises"><ArrowLeft size={16} aria-hidden="true" /> Volver a ejercicios</Link>
       <header className="page-heading detail-heading">
-        <div><p className="eyebrow">Ficha de ejercicio</p><h1>{exercise.name}</h1><p>Datos de catálogo. El historial y las marcas se incorporarán en su sprint de analítica.</p></div>
+        <div><p className="eyebrow">Ficha de ejercicio</p><h1>{exercise.name}</h1><p>Datos de catálogo, última sesión comparable y marcas históricas.</p></div>
       </header>
       {status && <StatusBanner>{status}</StatusBanner>}
       <div className="detail-grid">
@@ -77,6 +84,17 @@ export function ExerciseDetailPage() {
             </div>
           </Card>
         )}
+      </div>
+      <div className="progress-grid exercise-history-grid">
+        <Card>
+          <div className="section-heading"><div><p className="card-kicker">Última vez</p><h2>Sesiones comparables</h2></div><span className="tag">working</span></div>
+          {historyQuery.isPending ? <p className="muted">Cargando historial…</p> : historyQuery.data?.length ? <div className="exercise-history-list">{historyQuery.data.slice(0, 5).map((entry) => <div className="exercise-history-row" key={entry.workoutId}><div><strong>{formatShortDateInTimeZone(entry.completedAt, profile?.timezone ?? "America/La_Paz")}</strong><span>{entry.routineNameSnapshot ?? "Workout libre"}</span></div><strong>{entry.sets.filter((set) => set.setType === "working").map((set) => `${set.weightKg} × ${set.reps}`).join(" · ") || "Sin working sets"}</strong></div>)}</div> : <div className="inline-empty"><p>Primera vez.</p><span className="muted">Todavía no hay sesiones completadas para comparar.</span></div>}
+        </Card>
+        <Card className="card-soft">
+          <p className="card-kicker">Marcas históricas</p><h2>{exercise.name}</h2>
+          {prsQuery.isPending ? <p className="muted">Calculando…</p> : <div className="pr-list"><div><span>Mayor peso</span><strong>{prsQuery.data?.weightKg ?? "—"} kg</strong></div><div><span>Más repeticiones</span><strong>{prsQuery.data?.repsAtWeightKg ?? "—"}</strong></div><div><span>Mejor e1RM</span><strong>{prsQuery.data?.e1rmKg ? `${prsQuery.data.e1rmKg.toFixed(1)} kg` : "—"}</strong></div></div>}
+          <Link className="button button-quiet button-link exercise-progress-link" to={`/app/progress?exercise=${exercise.id}`}>Ver progreso <ArrowRight size={17} aria-hidden="true" /></Link>
+        </Card>
       </div>
       <Dialog open={editing} title="Editar ejercicio" onClose={() => { mutations.update.reset(); setEditing(false); }}>
         <ExerciseForm

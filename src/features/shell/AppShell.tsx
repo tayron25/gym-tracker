@@ -90,8 +90,8 @@ export function AppShell() {
           </nav>
         </div>
         <div className="sidebar-foot">
-          <span>SPR-05</span>
-          <small>Workout activo · datos simulados</small>
+          <span>SPR-06</span>
+          <small>Historial y progreso · datos simulados</small>
         </div>
       </aside>
 

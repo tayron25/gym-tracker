@@ -12,6 +12,9 @@ describe("rutas de plantillas", () => {
     ["/app/routines/new", "Nueva rutina."],
     ["/app/routines/routine-push-a", "Push A"],
     ["/app/exercises/exercise-press-banca", "Press banca"],
+    ["/app/history", "Historial."],
+    ["/app/history/workout-history-push-a", "Push A"],
+    ["/app/progress", "Lo que está cambiando."],
   ])("restaura %s directamente dentro de la sesión simulada", async (path, heading) => {
     sessionStorage.setItem("gym-tracker.mock-session", "active");
     render(

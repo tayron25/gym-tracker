@@ -1,4 +1,3 @@
-import { BarChart3, History } from "lucide-react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "../providers/AuthProvider";
 import { LoadingState } from "../../components/shared/LoadingState";
@@ -14,7 +13,9 @@ import { RoutinesPage } from "../../features/routines/RoutinesPage";
 import { ActiveWorkoutPage } from "../../features/active-workout/ActiveWorkoutPage";
 import { AppShell } from "../../features/shell/AppShell";
 import { DashboardPage } from "../../features/shell/DashboardPage";
-import { PlaceholderPage } from "../../features/shell/PlaceholderPage";
+import { HistoryPage } from "../../features/history/HistoryPage";
+import { HistoryDetailPage } from "../../features/history/HistoryDetailPage";
+import { ProgressPage } from "../../features/progress/ProgressPage";
 
 export function ProtectedRoute() {
   const { isLoading, session } = useAuth();
@@ -69,30 +70,11 @@ export function AppRouter() {
             path="/app/workout/active"
             element={<ActiveWorkoutPage />}
           />
-          <Route
-            path="/app/history"
-            element={
-              <PlaceholderPage
-                eyebrow="Hechos guardados"
-                title="Historial."
-                description="Sesiones completadas y snapshots históricos, sin reescrituras."
-                icon={History}
-              />
-            }
-          />
+          <Route path="/app/history" element={<HistoryPage />} />
+          <Route path="/app/history/:id" element={<HistoryDetailPage />} />
           <Route path="/app/exercises" element={<ExercisesPage />} />
           <Route path="/app/exercises/:id" element={<ExerciseDetailPage />} />
-          <Route
-            path="/app/progress"
-            element={
-              <PlaceholderPage
-                eyebrow="Lectura de progreso"
-                title="Progreso."
-                description="PR, e1RM y series semanales cuando existan datos reales."
-                icon={BarChart3}
-              />
-            }
-          />
+          <Route path="/app/progress" element={<ProgressPage />} />
           <Route path="/app/settings" element={<ProfilePage />} />
         </Route>
       </Route>

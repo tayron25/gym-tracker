@@ -15,6 +15,10 @@ import type {
   Workout,
   WorkoutExercise,
 } from "../../../domain/types/workout";
+import type { ExerciseTrendPoint } from "../../../domain/types/analytics";
+import type { ExerciseHistoryEntry, WorkoutHistoryPage } from "../../../domain/types/history";
+import { calculateE1rm, calculatePersonalRecords, calculateSessionBestE1rm, calculateWorkoutSummary, eligibleWorkingSets } from "../../../domain/metrics/workout-metrics";
+import { dateKeyInTimeZone, shiftDateKey } from "../../../domain/metrics/date-metrics";
 import {
   exerciseInputSchema,
   normalizeName,
@@ -25,7 +29,17 @@ import { DEMO_USER_ID } from "./mock-auth-repository";
 
 export const MOCK_TRAINING_DATA_KEY = "gym-tracker.mock-training-data";
 
-export type MockOperation = "startFromRoutine" | "createSet";
+export type MockOperation =
+  | "startFromRoutine"
+  | "createSet"
+  | "listWorkouts"
+  | "getWorkoutDetail"
+  | "updateWorkoutNotes"
+  | "deleteWorkout"
+  | "exerciseHistory"
+  | "exercisePRs"
+  | "exerciseTrend"
+  | "weeklyMuscleSets";
 
 export type MockTrainingOptions = {
   latencyMs?: number;
@@ -220,34 +234,75 @@ const createInitialState = (): MockTrainingState => {
       notesSnapshot: item.notes,
     };
   });
-  const seedWeights = [75, 42.5, 12, 25, 10];
-  const seedSets: CompletedSet[] = seedExercises.map((exercise, index) => ({
-    id: `set-history-${index + 1}`,
-    workoutExerciseId: exercise.id,
-    setNumber: 1,
-    setType: "working",
-    weightKg: seedWeights[index] ?? 10,
-    reps: 10,
-    rir: 2,
-    completedAt: `2026-09-08T18:${String(10 + index).padStart(2, "0")}:00.000Z`,
-  }));
+  const createHistoricalWorkout = (
+    id: string,
+    startedAt: string,
+    finishedAt: string,
+    weights: number[],
+    reps: number,
+    notes: string | null = null,
+  ): Workout => {
+    const exercises = seedExercises.map((exercise) => ({
+      ...exercise,
+      id: `${id}-exercise-${exercise.position}`,
+      workoutId: id,
+    }));
+    let setIndex = 0;
+    const sets = exercises.flatMap((exercise, exerciseIndex) => {
+      const weight = weights[exerciseIndex] ?? 10;
+      const definitions = exerciseIndex === 0
+        ? [
+            { setType: "warmup" as const, weightKg: Math.max(0, weight * 0.6), reps: 10 },
+            { setType: "approach" as const, weightKg: Math.max(0, weight * 0.8), reps: 5 },
+            { setType: "working" as const, weightKg: weight, reps },
+            { setType: "working" as const, weightKg: weight, reps: Math.max(1, reps - 1) },
+            { setType: "working" as const, weightKg: weight, reps: Math.max(1, reps - 2) },
+          ]
+        : [1, 2, 3].map((setNumber) => ({
+            setType: "working" as const,
+            weightKg: weight,
+            reps: Math.max(1, reps - (setNumber - 1)),
+          }));
+      return definitions.map((definition, definitionIndex) => ({
+        id: `${id}-set-${++setIndex}`,
+        workoutExerciseId: exercise.id,
+        setNumber: definitionIndex + 1,
+        setType: definition.setType,
+        weightKg: definition.weightKg,
+        reps: definition.reps,
+        rir: 2,
+        completedAt: new Date(Date.parse(startedAt) + (setIndex * 90_000)).toISOString(),
+      }));
+    });
+
+    return {
+      id,
+      userId: DEMO_USER_ID,
+      routineId: pushRoutine.id,
+      routineNameSnapshot: pushRoutine.name,
+      startedAt,
+      finishedAt,
+      status: "completed",
+      notes,
+      exercises,
+      sets,
+    };
+  };
+
+  const historicalWorkouts = [
+    createHistoricalWorkout("workout-history-push-a", "2026-09-08T18:00:00.000Z", "2026-09-08T18:45:00.000Z", [75, 42.5, 12, 25, 10], 10, "Buen control en la segunda serie."),
+    createHistoricalWorkout("workout-history-push-b", "2026-09-05T18:00:00.000Z", "2026-09-05T18:42:00.000Z", [77.5, 42.5, 12, 25, 10], 9),
+    createHistoricalWorkout("workout-history-push-c", "2026-09-02T18:00:00.000Z", "2026-09-02T18:48:00.000Z", [80, 45, 12, 27.5, 10], 8),
+    createHistoricalWorkout("workout-history-push-d", "2026-08-28T18:00:00.000Z", "2026-08-28T18:40:00.000Z", [72.5, 40, 11, 25, 9], 10),
+    createHistoricalWorkout("workout-history-push-e", "2026-08-20T18:00:00.000Z", "2026-08-20T18:43:00.000Z", [70, 40, 10, 22.5, 9], 10),
+    createHistoricalWorkout("workout-history-push-f", "2026-07-08T18:00:00.000Z", "2026-07-08T18:38:00.000Z", [67.5, 37.5, 10, 20, 8], 10),
+  ];
 
   return {
     version: 2,
     exercises,
     routines,
-    workouts: [{
-      id: seedWorkoutId,
-      userId: DEMO_USER_ID,
-      routineId: pushRoutine.id,
-      routineNameSnapshot: pushRoutine.name,
-      startedAt: "2026-09-08T18:00:00.000Z",
-      finishedAt: "2026-09-08T18:45:00.000Z",
-      status: "completed",
-      notes: null,
-      exercises: seedExercises,
-      sets: seedSets,
-    }],
+    workouts: historicalWorkouts,
   };
 };
 
@@ -790,6 +845,78 @@ export const createMockTrainingRepositories = (options: MockTrainingOptions = {}
   };
 
   const history: TrainingRepositories["history"] = {
+    async listWorkouts(page, pageSize) {
+      await beforeOperation("listWorkouts");
+      const state = readState();
+      const completed = state.workouts
+        .filter((workout) => workout.userId === DEMO_USER_ID && workout.status === "completed" && workout.finishedAt !== null)
+        .sort((a, b) => (b.finishedAt ?? "").localeCompare(a.finishedAt ?? ""));
+      const safePage = Math.max(1, page);
+      const safePageSize = Math.max(1, pageSize);
+      const start = (safePage - 1) * safePageSize;
+      const items = completed.slice(start, start + safePageSize).map((workout) => ({
+        ...workout,
+        summary: calculateWorkoutSummary(workout),
+      }));
+      const result: WorkoutHistoryPage = {
+        items,
+        page: safePage,
+        pageSize: safePageSize,
+        total: completed.length,
+        hasNextPage: start + safePageSize < completed.length,
+      };
+      return clone(result);
+    },
+
+    async getWorkoutDetail(workoutId) {
+      await beforeOperation("getWorkoutDetail");
+      const workout = readState().workouts.find((candidate) => candidate.id === workoutId && candidate.userId === DEMO_USER_ID && candidate.status === "completed");
+      if (!workout) throw new RepositoryError("NOT_FOUND", "El workout histórico no está disponible.");
+      return clone(workout);
+    },
+
+    async updateNotes(workoutId, notes) {
+      await beforeOperation("updateWorkoutNotes");
+      const state = readState();
+      const workout = state.workouts.find((candidate) => candidate.id === workoutId && candidate.userId === DEMO_USER_ID && candidate.status === "completed");
+      if (!workout) throw new RepositoryError("NOT_FOUND", "El workout histórico no está disponible.");
+      workout.notes = notes.trim().slice(0, 2000) || null;
+      writeState(state);
+      return clone(workout);
+    },
+
+    async deleteWorkout(workoutId) {
+      await beforeOperation("deleteWorkout");
+      const state = readState();
+      const index = state.workouts.findIndex((candidate) => candidate.id === workoutId && candidate.userId === DEMO_USER_ID && candidate.status === "completed");
+      if (index < 0) throw new RepositoryError("NOT_FOUND", "El workout histórico no está disponible.");
+      state.workouts.splice(index, 1);
+      writeState(state);
+    },
+
+    async getExerciseHistory(exerciseId) {
+      await beforeOperation("exerciseHistory");
+      const entries: ExerciseHistoryEntry[] = [];
+      readState().workouts
+        .filter((workout) => workout.userId === DEMO_USER_ID && workout.status === "completed" && workout.finishedAt !== null)
+        .sort((a, b) => (b.finishedAt ?? "").localeCompare(a.finishedAt ?? ""))
+        .forEach((workout) => {
+          workout.exercises.filter((exercise) => exercise.exerciseId === exerciseId).forEach((exercise) => {
+            const sets = workout.sets.filter((set) => set.workoutExerciseId === exercise.id);
+            entries.push({
+              workoutId: workout.id,
+              completedAt: workout.finishedAt!,
+              routineNameSnapshot: workout.routineNameSnapshot,
+              exerciseId,
+              exerciseNameSnapshot: exercise.exerciseNameSnapshot,
+              sets,
+              bestE1rmKg: calculateSessionBestE1rm(sets),
+            });
+          });
+        });
+      return clone(entries);
+    },
+
     async getPreviousExerciseSession(exerciseId: string, before = new Date().toISOString()) {
       const state = readState();
       const previous = state.workouts
@@ -807,5 +934,72 @@ export const createMockTrainingRepositories = (options: MockTrainingOptions = {}
     },
   };
 
-  return { exercises, routines, workouts, sets, history };
+  const analytics: TrainingRepositories["analytics"] = {
+    async getExercisePRs(exerciseId) {
+      await beforeOperation("exercisePRs");
+      const sets = readState().workouts
+        .filter((workout) => workout.userId === DEMO_USER_ID && workout.status === "completed")
+        .flatMap((workout) => workout.exercises
+          .filter((exercise) => exercise.exerciseId === exerciseId)
+          .flatMap((exercise) => workout.sets.filter((set) => set.workoutExerciseId === exercise.id)));
+      return clone(calculatePersonalRecords(sets));
+    },
+
+    async getExerciseTrend(exerciseId, range) {
+      await beforeOperation("exerciseTrend");
+      const workouts = readState().workouts
+        .filter((workout) => workout.userId === DEMO_USER_ID && workout.status === "completed" && workout.finishedAt !== null)
+        .sort((a, b) => (a.finishedAt ?? "").localeCompare(b.finishedAt ?? ""));
+      const reference = Date.parse(workouts.at(-1)?.finishedAt ?? new Date().toISOString());
+      const rangeStart = reference - (range === "30d" ? 30 : 180) * 24 * 60 * 60 * 1000;
+      const points: ExerciseTrendPoint[] = [];
+      workouts.forEach((workout) => {
+        if (Date.parse(workout.finishedAt!) < rangeStart) return;
+        workout.exercises.filter((exercise) => exercise.exerciseId === exerciseId).forEach((exercise) => {
+          const bestSet = eligibleWorkingSets(workout.sets.filter((set) => set.workoutExerciseId === exercise.id))
+            .map((set) => ({ set, e1rm: calculateE1rm(set.weightKg, set.reps) }))
+            .filter((entry): entry is { set: CompletedSet; e1rm: number } => entry.e1rm !== null)
+            .sort((a, b) => b.e1rm - a.e1rm)[0];
+          if (bestSet) {
+            points.push({
+              workoutId: workout.id,
+              completedAt: workout.finishedAt!,
+              routineNameSnapshot: workout.routineNameSnapshot,
+              weightKg: bestSet.set.weightKg,
+              reps: bestSet.set.reps,
+              e1rmKg: bestSet.e1rm,
+            });
+          }
+        });
+      });
+      return clone(points);
+    },
+
+    async getWeeklyMuscleSets(weekStart, timezone) {
+      await beforeOperation("weeklyMuscleSets");
+      const end = shiftDateKey(weekStart, 7);
+      const counts = new Map<number, number>();
+      readState().workouts
+        .filter((workout) => workout.userId === DEMO_USER_ID && workout.status === "completed" && workout.finishedAt !== null)
+        .filter((workout) => {
+          const key = dateKeyInTimeZone(workout.finishedAt!, timezone);
+          return key >= weekStart && key < end;
+        })
+        .forEach((workout) => {
+          workout.exercises.forEach((exercise) => {
+            const count = workout.sets.filter((set) => set.workoutExerciseId === exercise.id && set.setType === "working").length;
+            counts.set(exercise.primaryMuscleIdSnapshot, (counts.get(exercise.primaryMuscleIdSnapshot) ?? 0) + count);
+          });
+        });
+      return clone(Array.from(counts.entries())
+        .map(([muscleGroupId, setCount]) => ({
+          muscleGroupId,
+          muscleName: muscleGroups.find((muscle) => muscle.id === muscleGroupId)?.name ?? "Sin clasificar",
+          setCount,
+        }))
+        .sort((a, b) => b.setCount - a.setCount));
+    },
+  };
+
+  return { exercises, routines, workouts, sets, history, analytics };
 };

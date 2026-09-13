@@ -13,13 +13,13 @@ Este archivo conserva el contexto operativo del proyecto para futuras sesiones d
 
 ## Estado real inspeccionado
 
-Fecha de referencia: 2026-09-12.
+Fecha de referencia: 2026-09-13.
 
-- El espacio de trabajo contiene la especificación, este `AGENTS.md`, la guía local `docs/ux/DESIGN SKILL.md`, los artefactos UX de `docs/ux/` y el frontend mock de SPR-03 a SPR-05.
+- El espacio de trabajo contiene la especificación, este `AGENTS.md`, la guía local `docs/ux/DESIGN SKILL.md`, los artefactos UX de `docs/ux/` y el frontend mock de SPR-03 a SPR-06.
 - Existe `src/`, `package.json`, `package-lock.json`, `.github/workflows/ci.yml`, `vite.config.ts`, configuración TypeScript y `README.md`; todavía no existen `public/`, `supabase/`, `e2e/` ni `.env.example`.
 - Existe un repositorio Git en la rama `main`; `docs/ux/DESIGN SKILL.md` está rastreado y no debe eliminarse ni modificarse sin autorización.
 - El frontend usa autenticación y repositorios de ejercicios, rutinas y workouts activos simulados; no importa Supabase. Los datos mock de entrenamiento se guardan solo durante la sesión en `gym-tracker.mock-training-data` y se limpian al cerrar sesión.
-- La estructura de carpetas mostrada en la especificación sigue siendo una estructura objetivo; están implementados el shell y la autenticación de SPR-03, el frontend mock de ejercicios y rutinas de SPR-04 y el workout activo de SPR-05.
+- La estructura de carpetas mostrada en la especificación sigue siendo una estructura objetivo; están implementados el shell y la autenticación de SPR-03, el frontend mock de ejercicios y rutinas de SPR-04, el workout activo de SPR-05 y el frontend mock de historial/progreso de SPR-06.
 
 ## Puertas y fase actual
 
@@ -35,6 +35,7 @@ Fecha de referencia: 2026-09-12.
 - `SPR-03` está terminado dentro del alcance aprobado; CP-02A fue cerrada y aprobada por el propietario el 2026-09-12 tras probar el acceso desde un celular en la misma red Wi‑Fi.
 - `SPR-04` está terminado dentro del alcance aprobado; CP-02B fue cerrada y aprobada por el propietario el 2026-09-12 con evidencia automatizada de flujo mock, persistencia de sesión, responsive y teclado.
 - `SPR-05` está terminado dentro del alcance aprobado; CP-02C fue cerrada y aprobada por el propietario el 2026-09-12 con evidencia automatizada del flujo de cinco ejercicios, red simulada, reintentos, doble toque, teclado, resumen y build. La limitación de captura CDP de Chrome queda registrada en `docs/evidence/spr-05-cp-02c.md`.
+- `SPR-06` está terminado dentro del alcance aprobado; CP-02D fue cerrada y aprobada por el propietario el 2026-09-13 con evidencia automatizada de historial, detalle histórico, notas, eliminación mock, progreso, responsive y 12 capturas reproducibles en cuatro tamaños.
 - La especificación exige una orden independiente para iniciar cada sprint; la aprobación de uno no autoriza automáticamente el siguiente.
 - No iniciar backend, Supabase, migraciones, funcionalidades de sprints posteriores, prototipos adicionales o configuración de despliegue sin una solicitud explícita que autorice ese alcance.
 - Trabajar un sprint a la vez y no adelantar trabajo de sprints posteriores.
